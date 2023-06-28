@@ -22,7 +22,7 @@ set( CMAKE_AUTOUIC ON )
 project( VectorDraw CXX )
 
 set( QT_PKG Qt5 )
-find_package( ${QT_PKG} REQUIRED COMPONENTS Core Gui Widgets HINTS "C:/qt/5.12.2/mingw73_32" )
+find_package( ${QT_PKG} REQUIRED COMPONENTS Core Gui Widgets HINTS "C:/qt/5.12.2/mingw73_64" )
 
 add_executable( ${CMAKE_PROJECT_NAME}
 	settings.hpp
