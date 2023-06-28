@@ -1,6 +1,9 @@
 ﻿#pragma once
 
-struct settings : QSettings {
+class settings : QSettings {
+	Q_OBJECT
+
+public:
 	settings()
 		: QSettings(
 			QFileInfo( QCoreApplication::applicationFilePath() ).baseName() + ".ini",
