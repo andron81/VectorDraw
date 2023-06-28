@@ -7,6 +7,7 @@ class MainWindow : public QMainWindow {
 
 	QAction *		m_act_new;
 	QAction *		m_act_exit;
+	QAction *		m_act_about_qt;
 
 	QMenu *			m_menu_file;
 
@@ -59,14 +60,22 @@ public:
 			move( screen()->geometry().center() - frameGeometry().center() );
 		}
 
-		// Create menu bar...
-		m_act_new  = create_action( "New" , &MainWindow::act_new  );
-		m_act_exit = create_action( "Exit", &MainWindow::act_exit ); // QWidget::close
+		// Menu bar
 
-		m_menu_file = menuBar()->addMenu( "&File" );
+		// File...
+		m_act_new  = create_action( tr( "&New" ) , &MainWindow::act_new  );
+		m_act_exit = create_action( tr( "E&xit" ), &MainWindow::act_exit );
+
+		m_menu_file = menuBar()->addMenu( tr( "&File" ) );
 		m_menu_file->addAction( m_act_new );
 		m_menu_file->addSeparator();
 		m_menu_file->addAction( m_act_exit );
+
+		// About...
+		m_act_about_qt = create_action( tr( "About &Qt" ) , &MainWindow::act_about_qt );
+
+		m_menu_file = menuBar()->addMenu( tr( "&Help" ) );
+		m_menu_file->addAction( m_act_about_qt );
 	}
 
 private slots:
@@ -78,4 +87,9 @@ private slots:
 		qDebug() << __FUNCTION__;
 		close();
 	}
+
+	void act_about_qt() {
+		QApplication::aboutQt();
+	}
+
 }; // class MainWindow
