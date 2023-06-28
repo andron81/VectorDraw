@@ -15,15 +15,18 @@ class MainWindow : public QMainWindow {
 protected:
 	void closeEvent( QCloseEvent * ) override {
 		qDebug() << __FUNCTION__;
-		save_settings();
+		settings s;
+		s.save( this );
 	}
 
 public:
 	MainWindow( QWidget * parent = nullptr ) : QMainWindow( parent ) {
 
 		setWindowTitle( "VectorDraw" );
-		//setMinimumSize( 400, 300 );
-		if ( !load_settings() ) {
+
+		settings s;
+		if ( !s.load( this ) ) {
+			// Если нет файла настроек...
 			resize( 1024, 400 );
 			move( screen()->geometry().center() - frameGeometry().center() );
 		}
@@ -69,24 +72,5 @@ private:
 		QAction * act = new QAction( name, this );
 		connect( act, &QAction::triggered, this, slot );
 		return act;
-	}
-
-	bool load_settings() {
-		settings s;
-		s.beginGroup( "MainWindow" );
-			setGeometry( s.value( "geometry" ).toRect() );
-			if ( s.value( "maximized" ).toBool() ) {
-				setWindowState( Qt::WindowMaximized );
-			}
-		s.endGroup();
-		return s;
-	}
-
-	void save_settings() {
-		settings s;
-		s.beginGroup( "MainWindow" );
-			s.setValue( "geometry", geometry() );
-			s.setValue( "maximized", windowState() == Qt::WindowMaximized );
-		s.endGroup();
 	}
 }; // class MainWindow
