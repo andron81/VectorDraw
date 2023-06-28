@@ -6,11 +6,9 @@
 class MainWindow : public QMainWindow {
 	Q_OBJECT
 
-	QAction *		m_act_new;
-	QAction *		m_act_exit;
-	QAction *		m_act_about_qt;
-
-	QMenu *			m_menu_file;
+	QAction *	m_act_new;
+	QAction *	m_act_exit;
+	QAction *	m_act_about_qt;
 
 protected:
 	void closeEvent( QCloseEvent * ) override {
@@ -32,22 +30,24 @@ public:
 		}
 
 
-		// Menu bar
+		// Create menu actions...
+		m_act_new		= create_action( tr( "&New" )     , &MainWindow::act_new  );
+		m_act_exit		= create_action( tr( "E&xit" )    , &MainWindow::act_exit );
+		m_act_about_qt	= create_action( tr( "About &Qt" ), &MainWindow::act_about_qt );
 
 		// File...
-		m_act_new  = create_action( tr( "&New" ) , &MainWindow::act_new  );
-		m_act_exit = create_action( tr( "E&xit" ), &MainWindow::act_exit );
-
-		m_menu_file = menuBar()->addMenu( tr( "&File" ) );
-		m_menu_file->addAction( m_act_new );
-		m_menu_file->addSeparator();
-		m_menu_file->addAction( m_act_exit );
+		{
+			QMenu * p = menuBar()->addMenu( tr( "&File" ) );
+			p->addAction( m_act_new );
+			p->addSeparator();
+			p->addAction( m_act_exit );
+		}
 
 		// About...
-		m_act_about_qt = create_action( tr( "About &Qt" ) , &MainWindow::act_about_qt );
-
-		m_menu_file = menuBar()->addMenu( tr( "&Help" ) );
-		m_menu_file->addAction( m_act_about_qt );
+		{
+			QMenu * p = menuBar()->addMenu( tr( "&Help" ) );
+			p->addAction( m_act_about_qt );
+		}
 	}
 
 private slots:
@@ -66,7 +66,7 @@ private slots:
 
 private:
 
-	// Create action and connect it to slot
+	// Create action and connect it to slot...
 	template <typename SlotT>
 	QAction * create_action( const QString & name, SlotT && slot ) {
 		QAction * act = new QAction( name, this );
