@@ -29,7 +29,7 @@ public:
 		if ( !s.load( this ) ) {
 			// Если нет файла настроек...
 			resize( 1280, 720 );
-			move( screen()->geometry().center() - frameGeometry().center() );
+			//move( screen()->geometry().center() - frameGeometry().center() );
 		}
 
 
@@ -37,6 +37,7 @@ public:
 		m_act_new		= create_action( "&Новый", &MainWindow::act_new  );
 		m_act_exit		= create_action( "Вы&ход", &MainWindow::act_exit );
 		m_act_about_qt	= create_action(  "О &Qt", &MainWindow::act_about_qt );
+
 
 		// File...
 		{
