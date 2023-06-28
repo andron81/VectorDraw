@@ -11,6 +11,7 @@ project( VectorDraw CXX )
 find_package( Qt6 REQUIRED COMPONENTS Core Gui Widgets )
 
 add_executable( ${CMAKE_PROJECT_NAME}
+	settings.hpp
 	VectorDraw.cpp
 	VectorDraw.hpp
 	VectorDraw_pch.hpp )

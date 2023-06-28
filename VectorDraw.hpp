@@ -1,6 +1,7 @@
 #pragma once
 
 #include "VectorDraw_pch.hpp"
+#include "settings.hpp"
 
 class MainWindow : public QMainWindow {
 	Q_OBJECT
@@ -10,39 +11,6 @@ class MainWindow : public QMainWindow {
 	QAction *		m_act_about_qt;
 
 	QMenu *			m_menu_file;
-
-	template <typename SlotT>
-	QAction * create_action( const QString & name, SlotT && slot ) {
-		QAction * act = new QAction( name, this );
-		connect( act, &QAction::triggered, this, slot );
-		return act;
-	}
-
-
-	struct settings : QSettings {
-		settings() : QSettings( QFileInfo( QCoreApplication::applicationFilePath() ).baseName() + ".ini", QSettings::IniFormat ) {}
-		operator bool () const { return QFile( fileName() ).exists(); }
-	}; // class settings
-
-
-	bool load_settings() {
-		settings s;
-		s.beginGroup( "MainWindow" );
-			setGeometry( s.value( "geometry" ).toRect() );
-			if ( s.value( "maximized" ).toBool() ) {
-				setWindowState( Qt::WindowMaximized );
-			}
-		s.endGroup();
-		return s;
-	}
-
-	void save_settings() {
-		settings s;
-		s.beginGroup( "MainWindow" );
-			s.setValue( "geometry", geometry() );
-			s.setValue( "maximized", windowState() == Qt::WindowMaximized );
-		s.endGroup();
-	}
 
 protected:
 	void closeEvent( QCloseEvent * ) override {
@@ -59,6 +27,7 @@ public:
 			resize( 1024, 400 );
 			move( screen()->geometry().center() - frameGeometry().center() );
 		}
+
 
 		// Menu bar
 
@@ -92,4 +61,32 @@ private slots:
 		QApplication::aboutQt();
 	}
 
+private:
+
+	// Create action and connect it to slot
+	template <typename SlotT>
+	QAction * create_action( const QString & name, SlotT && slot ) {
+		QAction * act = new QAction( name, this );
+		connect( act, &QAction::triggered, this, slot );
+		return act;
+	}
+
+	bool load_settings() {
+		settings s;
+		s.beginGroup( "MainWindow" );
+			setGeometry( s.value( "geometry" ).toRect() );
+			if ( s.value( "maximized" ).toBool() ) {
+				setWindowState( Qt::WindowMaximized );
+			}
+		s.endGroup();
+		return s;
+	}
+
+	void save_settings() {
+		settings s;
+		s.beginGroup( "MainWindow" );
+			s.setValue( "geometry", geometry() );
+			s.setValue( "maximized", windowState() == Qt::WindowMaximized );
+		s.endGroup();
+	}
 }; // class MainWindow
