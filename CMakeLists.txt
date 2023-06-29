@@ -21,8 +21,23 @@ set( CMAKE_AUTOUIC ON )
 
 project( VectorDraw CXX )
 
+message( STATUS " -------------------------------------------------------------------------------------------" )
+message( STATUS "     Compiler: ${CMAKE_CXX_COMPILER_ID}" )
+message( STATUS "   Build type: ${CMAKE_BUILD_TYPE}" )
+message( STATUS " Target arch.: ${CMAKE_SYSTEM_PROCESSOR}" )
+message( STATUS " -------------------------------------------------------------------------------------------" )
+
 set( QT_PKG Qt5 )
-find_package( ${QT_PKG} REQUIRED COMPONENTS Core Gui Widgets HINTS "C:/qt/5.12.2/mingw73_64" )
+
+#set( CMAKE_PREFIX_PATH "F:/Qt-static/lib/cmake" )
+
+if( CMAKE_SYSTEM_PROCESSOR STREQUAL "AMD64" )
+ find_package( ${QT_PKG} REQUIRED COMPONENTS Core Gui Widgets HINTS "C:/qt/5.12.2/mingw73_64" "F:/Qt-static" )
+else()
+ find_package( ${QT_PKG} REQUIRED COMPONENTS Core Gui Widgets HINTS "C:/qt/5.12.2/mingw73_32" )
+endif()
+
+message( STATUS "QT: ${${QT_PKG}_DIR}" )
 
 add_executable( ${CMAKE_PROJECT_NAME}
 	settings.hpp
