@@ -1,5 +1,7 @@
 ﻿#pragma once
 
+#include "VectorDraw_pch.hpp"
+
 class settings : QSettings {
 	Q_OBJECT
 
