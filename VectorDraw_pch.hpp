@@ -24,3 +24,5 @@
 #include <QGraphicsView>
 #include <QGraphicsItem>
 #include <QStyleOptionGraphicsItem>
+
+#include <QWheelEvent>
