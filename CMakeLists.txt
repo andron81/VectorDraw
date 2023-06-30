@@ -24,9 +24,9 @@ project( VectorDraw CXX )
 # If QT variable is set, than CMake searches only in that path.
 if( DEFINED QT )
 	message( STATUS " * Manualy specified QT path: ${QT}" )
-	find_package( Qt6 REQUIRED COMPONENTS Core Gui Widgets PATHS ${QT} NO_DEFAULT_PATH )
+	find_package( Qt6 REQUIRED COMPONENTS Core Gui Widgets PrintSupport PATHS ${QT} NO_DEFAULT_PATH )
 else()
-	find_package( Qt6 REQUIRED COMPONENTS Core Gui Widgets )
+	find_package( Qt6 REQUIRED COMPONENTS Core Gui Widgets PrintSupport )
 endif()
 
 message( STATUS " -------------------------------------------------------------------------------------------" )
@@ -60,4 +60,4 @@ endif()
 
 target_precompile_headers ( ${CMAKE_PROJECT_NAME} PRIVATE "$<$<COMPILE_LANGUAGE:CXX>:<${CMAKE_PROJECT_NAME}_pch.hpp$<ANGLE-R>>" )
 target_include_directories( ${CMAKE_PROJECT_NAME} PRIVATE ${CMAKE_SOURCE_DIR} )
-target_link_libraries     ( ${CMAKE_PROJECT_NAME} PRIVATE Qt6::Core Qt6::Gui Qt6::Widgets )
+target_link_libraries     ( ${CMAKE_PROJECT_NAME} PRIVATE Qt6::Core Qt6::Gui Qt6::Widgets Qt6::PrintSupport )
