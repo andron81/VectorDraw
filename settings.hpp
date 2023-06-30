@@ -3,8 +3,6 @@
 #include "VectorDraw_pch.hpp"
 
 class settings : QSettings {
-	Q_OBJECT
-
 public:
 	settings()
 		: QSettings(
@@ -12,7 +10,6 @@ public:
 			QSettings::IniFormat ) {}
 
 	bool load( QMainWindow * p_main_window ) {
-		//settings s;
 		beginGroup( "MainWindow" );
 			p_main_window->setGeometry( value( "geometry" ).toRect() );
 			if ( value( "maximized" ).toBool() ) {
