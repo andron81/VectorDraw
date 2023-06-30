@@ -21,23 +21,19 @@ set( CMAKE_AUTOUIC ON )
 
 project( VectorDraw CXX )
 
+# If QT variable is set, than CMake searches only in that path.
+if( DEFINED QT )
+	message( STATUS " * Manualy specified QT path: ${QT}" )
+	find_package( Qt6 REQUIRED COMPONENTS Core Gui Widgets PATHS ${QT} NO_DEFAULT_PATH )
+else()
+	find_package( Qt6 REQUIRED COMPONENTS Core Gui Widgets )
+endif()
+
 message( STATUS " -------------------------------------------------------------------------------------------" )
 message( STATUS "     Compiler: ${CMAKE_CXX_COMPILER_ID}" )
 message( STATUS "   Build type: ${CMAKE_BUILD_TYPE}" )
-message( STATUS " Target arch.: ${CMAKE_SYSTEM_PROCESSOR}" )
+message( STATUS "           Qt: ${Qt6_DIR}" )
 message( STATUS " -------------------------------------------------------------------------------------------" )
-
-set( QT_PKG Qt5 )
-
-#set( CMAKE_PREFIX_PATH "F:/Qt-static/lib/cmake" )
-
-if( CMAKE_SYSTEM_PROCESSOR STREQUAL "AMD64" )
- find_package( ${QT_PKG} REQUIRED COMPONENTS Core Gui Widgets HINTS "C:/qt/5.12.2/mingw73_64" "F:/Qt-static" )
-else()
- find_package( ${QT_PKG} REQUIRED COMPONENTS Core Gui Widgets HINTS "C:/qt/5.12.2/mingw73_32" )
-endif()
-
-message( STATUS "QT: ${${QT_PKG}_DIR}" )
 
 add_executable( ${CMAKE_PROJECT_NAME}
 	settings.hpp
@@ -51,13 +47,17 @@ if( CMAKE_CXX_COMPILER_ID STREQUAL "Clang" OR CMAKE_CXX_COMPILER_ID STREQUAL "GN
  else()
 	target_link_options( ${CMAKE_PROJECT_NAME} PRIVATE -s )
  endif()
+ set_target_properties ( ${CMAKE_PROJECT_NAME} PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR} )
+
 elseif( CMAKE_CXX_COMPILER_ID STREQUAL "MSVC" )
-# if( CMAKE_BUILD_TYPE STREQUAL "Debug" )
-#	target_link_options( ${CMAKE_PROJECT_NAME} PRIVATE /subsystem:console )
-# endif()
+ if( CMAKE_BUILD_TYPE STREQUAL "Debug" )
+	target_link_options( ${CMAKE_PROJECT_NAME} PRIVATE /subsystem:console )
+ else()
+	#target_link_options( ${CMAKE_PROJECT_NAME} PRIVATE /MT )
+ endif()
+
 endif()
 
 target_precompile_headers ( ${CMAKE_PROJECT_NAME} PRIVATE "$<$<COMPILE_LANGUAGE:CXX>:<${CMAKE_PROJECT_NAME}_pch.hpp$<ANGLE-R>>" )
 target_include_directories( ${CMAKE_PROJECT_NAME} PRIVATE ${CMAKE_SOURCE_DIR} )
-target_link_libraries     ( ${CMAKE_PROJECT_NAME} PRIVATE ${QT_PKG}::Core ${QT_PKG}::Gui ${QT_PKG}::Widgets )
-set_target_properties     ( ${CMAKE_PROJECT_NAME} PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR} )
+target_link_libraries     ( ${CMAKE_PROJECT_NAME} PRIVATE Qt6::Core Qt6::Gui Qt6::Widgets )
