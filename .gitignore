@@ -1,7 +1,10 @@
-.*
 _*
 *.log
 *.ini
+
+# VS
+.*
+x64
 
 # Prerequisites
 *.d
