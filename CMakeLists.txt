@@ -23,7 +23,7 @@ project( VectorDraw CXX )
 
 # If QT variable is set, than CMake searches only in that path.
 if( DEFINED QT )
-	message( STATUS " * Manualy specified QT path: ${QT}" )
+	message( STATUS " * Manually specified QT path: ${QT}" )
 	find_package( Qt6 REQUIRED COMPONENTS Core Gui Widgets PrintSupport PATHS ${QT} NO_DEFAULT_PATH )
 else()
 	find_package( Qt6 REQUIRED COMPONENTS Core Gui Widgets PrintSupport )
