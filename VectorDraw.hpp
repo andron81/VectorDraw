@@ -8,6 +8,8 @@ enum class tool_e { edit, line_solid, line_dashed, text, size };
 class graphics_view : public QGraphicsView {
 	Q_OBJECT
 
+	int		m_scale	= 1;
+
 public:
 	graphics_view( QGraphicsScene * scene, QWidget * parent )
 		: QGraphicsView( scene, parent )
@@ -17,25 +19,38 @@ public:
 		setInteractive( true );
 		setRenderHint( QPainter::Antialiasing, true );
 		setViewportUpdateMode( QGraphicsView::SmartViewportUpdate );
+		//setTransformationAnchor( QGraphicsView::AnchorUnderMouse );
+
 		setBackgroundBrush( Qt::gray );
 		centerOn( 0, 0 );
 
-		int scale = 10;//static_cast<int>(sizeSelector_->zoomFactor());
-
 		QTransform transform;
-		transform.scale( scale, scale );
+		transform.scale( m_scale, m_scale );
 		//qreal shift = 0.5 / scale;
 		//transform.translate(shift, shift);
 		setTransform( transform );
 	}
 
 protected:
-	void wheelEvent( QWheelEvent * event ) override { qDebug() << __FUNCTION__; }
+	void wheelEvent( QWheelEvent * event ) override {
+		//qDebug() << __FUNCTION__ << ", angle: " << event->angleDelta().y() << ", pixel: " << event->pixelDelta().y();
+		//if ( event->modifiers() & Qt::ShiftModifier )
+
+		if ( event->modifiers() & Qt::ControlModifier ) {
+			m_scale += event->angleDelta().y() > 0 ? 1 : -1;
+			if ( m_scale <  1 ) m_scale = 1;
+			if ( m_scale > 10 ) m_scale = 10;
+
+			QTransform tform;
+			tform.scale( m_scale, m_scale );
+			setTransform( tform );
+		}
+	}
+
 	void resizeEvent( QResizeEvent * event ) override { qDebug() << __FUNCTION__; }
 	void scrollContentsBy( int dx, int dy ) override {
 		//qDebug() << __FUNCTION__;
 		QGraphicsView::scrollContentsBy( dx, dy );
-		//lastBottomLeftPoint_ = viewport()->rect().bottomLeft();
 	}
 }; // class graphics_view
 
