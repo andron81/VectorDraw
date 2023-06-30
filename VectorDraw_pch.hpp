@@ -26,3 +26,4 @@
 #include <QStyleOptionGraphicsItem>
 
 #include <QWheelEvent>
+#include <QIntValidator>
