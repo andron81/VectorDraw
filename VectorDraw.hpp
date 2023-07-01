@@ -2,62 +2,14 @@
 
 #include "VectorDraw_pch.hpp"
 #include "settings.hpp"
+#include "view.hpp"
 
 enum class tool_e { edit, line_solid, line_dashed, text, size };
-
-class graphics_view : public QGraphicsView {
-	Q_OBJECT
-
-	int		m_scale	= 1;
-
-public:
-	graphics_view( QGraphicsScene * scene, QWidget * parent )
-		: QGraphicsView( scene, parent )
-	{
-		setDragMode( QGraphicsView::ScrollHandDrag );
-		//m_view->setDragMode( QGraphicsView::RubberBandDrag );
-		setInteractive( true );
-		setRenderHint( QPainter::Antialiasing, true );
-		setViewportUpdateMode( QGraphicsView::SmartViewportUpdate );
-		//setTransformationAnchor( QGraphicsView::AnchorUnderMouse );
-
-		setBackgroundBrush( Qt::gray );
-		centerOn( 0, 0 );
-
-		QTransform transform;
-		transform.scale( m_scale, m_scale );
-		//qreal shift = 0.5 / scale;
-		//transform.translate(shift, shift);
-		setTransform( transform );
-	}
-
-protected:
-	void wheelEvent( QWheelEvent * event ) override {
-		//qDebug() << __FUNCTION__ << ", angle: " << event->angleDelta().y() << ", pixel: " << event->pixelDelta().y();
-		//if ( event->modifiers() & Qt::ShiftModifier )
-
-		if ( event->modifiers() & Qt::ControlModifier ) {
-			m_scale += event->angleDelta().y() > 0 ? 1 : -1;
-			if ( m_scale <  1 ) m_scale = 1;
-			if ( m_scale > 10 ) m_scale = 10;
-
-			QTransform tform;
-			tform.scale( m_scale, m_scale );
-			setTransform( tform );
-		}
-	}
-
-	void resizeEvent( QResizeEvent * event ) override { qDebug() << __FUNCTION__; }
-	void scrollContentsBy( int dx, int dy ) override {
-		//qDebug() << __FUNCTION__;
-		QGraphicsView::scrollContentsBy( dx, dy );
-	}
-}; // class graphics_view
-
 
 class MainWindow : public QMainWindow {
 	Q_OBJECT
 
+	settings			m_settings;
 	QGraphicsScene *	m_scene;
 	graphics_view *		m_view;
 
@@ -78,6 +30,13 @@ class MainWindow : public QMainWindow {
 
 		// Help
 		QMenu * p_help = menuBar()->addMenu( "&Помощь" );
+
+		add_menu_action( p_help, "О программе", [this]{
+				QMessageBox::about( this,
+					"О VectorDraw",
+					"<p><b>VectorDraw</b> версия 0.1<br></p>"
+					"<p><a href='https://github.com/andron81/VectorDraw'>VectorDraw на GitHub</a></p>" );
+			} );
 		add_menu_action( p_help, "О &Qt", &QApplication::aboutQt );
 	}
 
@@ -160,16 +119,16 @@ class MainWindow : public QMainWindow {
 protected:
 	void closeEvent( QCloseEvent * /*p_event*/ ) override {
 		qDebug() << __FUNCTION__;
-		settings s;
-		s.save( this );
+		m_settings.save();
 	}
 
 public:
-	MainWindow( QWidget * parent = nullptr ) : QMainWindow( parent ) {
+	MainWindow( QWidget * parent = nullptr )
+		: QMainWindow( parent )
+		, m_settings( this )
+	{
 		setWindowTitle( "VectorDraw" );
-
-		settings s;
-		if ( !s.load( this ) ) {
+		if ( !m_settings.load() ) {
 			// Если нет файла настроек...
 			resize( 1280, 720 );
 
