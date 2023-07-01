@@ -12,6 +12,8 @@ class graphics_view : public QGraphicsView {
 
 	QGraphicsRectItem *	m_scene_rect;
 
+	QGraphicsItem *		m_item				= nullptr;		// Current painting item
+
 	void update_zoom() {
 		QTransform tform;
 		qreal scale = qreal(m_scale_factor) / m_scale_factor_div;
@@ -23,7 +25,7 @@ public:
 	graphics_view( QGraphicsScene * p_scene, QWidget * p_parent )
 		: QGraphicsView( p_scene, p_parent )
 	{
-		setDragMode( QGraphicsView::ScrollHandDrag );
+		//setDragMode( QGraphicsView::ScrollHandDrag ); // Remove. Moved to keyPressEvent/keyReleaseEvent
 		setInteractive( true );
 		setRenderHint( QPainter::Antialiasing, true );
 		setViewportUpdateMode( QGraphicsView::SmartViewportUpdate );
@@ -35,11 +37,6 @@ public:
 		m_scene_rect = scene()->addRect( sceneRect(), Qt::NoPen, QBrush( QColor( 255, 255, 255 ) ) );
 		m_scene_rect->setFlag( QGraphicsItem::ItemStacksBehindParent );
 
-		QGraphicsLineItem * p = scene()->addLine( -100, 0, 100, 0, QPen( Qt::DashLine ) );
-		p->setAcceptHoverEvents( true );
-		p->setAcceptTouchEvents( true );
-		p->setFlags( QGraphicsItem::ItemIsMovable | QGraphicsItem::ItemIsSelectable | QGraphicsItem::ItemIsFocusable );
-
 		update_zoom();
 	}
 
@@ -50,9 +47,30 @@ public:
 	}
 
 protected:
+
+	// Keyboard events...
+	void keyPressEvent( QKeyEvent * p_event ) override {
+		QGraphicsView::keyPressEvent( p_event ); // Forward to base
+
+		qDebug() << p_event->modifiers();
+		if ( p_event->modifiers() & Qt::ControlModifier ) {
+			setDragMode( QGraphicsView::ScrollHandDrag );
+		}
+	}
+
+	void keyReleaseEvent( QKeyEvent * p_event ) override {
+		QGraphicsView::keyReleaseEvent( p_event ); // Forward to base
+
+		qDebug() << p_event->modifiers();
+		if ( ~(p_event->modifiers() & Qt::ControlModifier) ) {
+			setDragMode( QGraphicsView::NoDrag );
+		}
+	}
+
+
+	// Mouse events...
 	void wheelEvent( QWheelEvent * p_event ) override {
 		//QGraphicsView::wheelEvent( p_event ); // I don't need default QGraphicsView wheel behaviour
-
 		if ( p_event->modifiers() & Qt::ControlModifier ) {
 			m_scale_factor += p_event->angleDelta().y() > 0 ? 1 : -1;
 			m_scale_factor = std::clamp( m_scale_factor, m_scale_factor_min, m_scale_factor_max );
@@ -60,15 +78,28 @@ protected:
 		}
 	}
 
+	void mousePressEvent( QMouseEvent * p_event ) override {
+		QGraphicsView::mousePressEvent( p_event ); // Forward to base
+
+		// TODO: check selected tool
+		QPointF pt = mapToScene( p_event->pos() );
+		m_item = scene()->addLine( QLineF( pt, pt ) );
+	}
+
+	void mouseReleaseEvent( QMouseEvent * p_event ) override {
+		QGraphicsView::mouseReleaseEvent( p_event ); // Forward to base
+
+		m_item = nullptr; // Stop drawing the item
+	}
+
 	void mouseMoveEvent( QMouseEvent * p_event ) override {
 		QGraphicsView::mouseMoveEvent( p_event ); // Forward to base
 
-#if 0
-		if ( QGraphicsItem * p_item = itemAt( p_event->position().toPoint() ) ) {
-			//p_item->setFocus();
-			p_item->setSelected( true );
+		// TODO: check selected tool
+		if ( m_item ) {
+			QGraphicsLineItem * p = static_cast<QGraphicsLineItem *>( m_item );
+			p->setLine( QLineF( p->line().p1(), mapToScene( p_event->pos() ) ) );
 		}
-#endif
 	}
 
 	void scrollContentsBy( int dx, int dy ) override {

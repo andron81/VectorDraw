@@ -116,11 +116,12 @@ class MainWindow : public QMainWindow {
 
 		{ // Right side
 			m_scene = new QGraphicsScene( -1000/*x*/, -1000/*y*/, 2000/*w*/, 2000/*h*/, p_widget_view );
-			m_scene->setFocusOnTouch( true );
+			//m_scene->setFocusOnTouch( true );
 			m_view = new graphics_view( m_scene, p_widget_view );
 			m_view->set_canvas_size( get_size() );
 			p_central_layout->addWidget( m_view );
 		}
+		m_view->setFocus();
 	}
 
 protected:
@@ -161,29 +162,7 @@ private slots:
 		m_scene->render( &painter );
 	}
 
-#if 0
-	void line_solid() {
-		//QGraphicsLineItem * p = m_scene->addLine( 100, 100, 300, 200 );
-		QGraphicsLineItem * p = m_scene->addLine( 100, 100, 300, 200, QPen( Qt::DashLine ) );
-		p->setAcceptHoverEvents( true );
-		p->setAcceptTouchEvents( true );
-		p->setFlags( QGraphicsItem::ItemIsMovable | QGraphicsItem::ItemIsSelectable | QGraphicsItem::ItemIsFocusable );
-		//stackBefore(const QGraphicsItem *sibling)
-		//m_scene->setFocusItem( p );
-	}
-#endif
-
 	void size_changed() {
 		m_view->set_canvas_size( get_size() );
 	}
-
-private:
-#if 0
-	template <typename SlotT>
-	QPushButton * create_button( const QString & name, SlotT && slot ) {
-		QPushButton * p = new QPushButton( name, this );
-		connect( p, &QPushButton::clicked, this, slot );
-		return p;
-	}
-#endif
 }; // class MainWindow
