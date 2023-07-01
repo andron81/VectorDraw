@@ -3,26 +3,29 @@
 #include "VectorDraw_pch.hpp"
 
 class settings : QSettings {
+	QMainWindow *	m_main_window;
+
 public:
-	settings()
+	settings( QMainWindow *	main_window )
 		: QSettings(
 			QFileInfo( QCoreApplication::applicationFilePath() ).baseName() + ".ini",
-			QSettings::IniFormat ) {}
+			QSettings::IniFormat )
+		, m_main_window( main_window ) { Q_ASSERT( m_main_window ); }
 
-	bool load( QMainWindow * p_main_window ) {
+	bool load() {
 		beginGroup( "MainWindow" );
-			p_main_window->setGeometry( value( "geometry" ).toRect() );
+			m_main_window->setGeometry( value( "geometry" ).toRect() );
 			if ( value( "maximized" ).toBool() ) {
-				p_main_window->setWindowState( Qt::WindowMaximized );
+				m_main_window->setWindowState( Qt::WindowMaximized );
 			}
 		endGroup();
 		return QFile( fileName() ).exists();
 	}
 
-	void save( QMainWindow * p_main_window ) {
+	void save() {
 		beginGroup( "MainWindow" );
-			setValue( "geometry", p_main_window->geometry() );
-			setValue( "maximized", p_main_window->windowState() == Qt::WindowMaximized );
+			setValue( "geometry", m_main_window->geometry() );
+			setValue( "maximized", m_main_window->windowState() == Qt::WindowMaximized );
 		endGroup();
 	}
 }; // class settings
