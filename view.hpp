@@ -52,7 +52,7 @@ protected:
 	void keyPressEvent( QKeyEvent * p_event ) override {
 		QGraphicsView::keyPressEvent( p_event ); // Forward to base
 
-		qDebug() << p_event->modifiers();
+		// Enable ScrollHandDrag if Ctrl pressed
 		if ( p_event->modifiers() & Qt::ControlModifier ) {
 			setDragMode( QGraphicsView::ScrollHandDrag );
 		}
@@ -61,7 +61,7 @@ protected:
 	void keyReleaseEvent( QKeyEvent * p_event ) override {
 		QGraphicsView::keyReleaseEvent( p_event ); // Forward to base
 
-		qDebug() << p_event->modifiers();
+		// Disable ScrollHandDrag if Ctrl unpressed
 		if ( ~(p_event->modifiers() & Qt::ControlModifier) ) {
 			setDragMode( QGraphicsView::NoDrag );
 		}
