@@ -6,11 +6,9 @@ class settings : QSettings {
 	QMainWindow *	m_main_window;
 
 public:
-	settings( QMainWindow *	main_window )
-		: QSettings(
-			QFileInfo( QCoreApplication::applicationFilePath() ).baseName() + ".ini",
-			QSettings::IniFormat )
-		, m_main_window( main_window ) { Q_ASSERT( m_main_window ); }
+	settings( QMainWindow *	p_main_window )
+		: QSettings( QFileInfo( QCoreApplication::applicationFilePath() ).baseName() + ".ini", QSettings::IniFormat )
+		, m_main_window( p_main_window ) { Q_ASSERT( m_main_window ); }
 
 	bool load() {
 		beginGroup( "MainWindow" );
