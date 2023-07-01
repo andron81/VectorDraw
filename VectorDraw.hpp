@@ -4,16 +4,26 @@
 #include "settings.hpp"
 #include "view.hpp"
 
-enum class tool_e { edit, line_solid, line_dashed, text, size };
-
 class MainWindow : public QMainWindow {
 	Q_OBJECT
 
+	enum class tool_e { edit, line_solid, line_dashed, text, size };
+
 	settings			m_settings;
+
+	QLineEdit *			m_edit_width;
+	QLineEdit *			m_edit_height;
+
 	QGraphicsScene *	m_scene;
 	graphics_view *		m_view;
 
 	tool_e				m_tool	= tool_e::edit;
+
+	QSize get_size() const {
+		return {
+			m_edit_width ->text().toInt(),
+			m_edit_height->text().toInt() };
+	}
 
 	void create_menu_bar() {
 		auto add_menu_action = [this]( QMenu * p_menu, const QString & name, auto && slot ) {
@@ -43,23 +53,23 @@ class MainWindow : public QMainWindow {
 	void create_controls() {
 
 		// Central widget
-		QWidget * widget_central = new QWidget( this );
-		setCentralWidget( widget_central );
+		QWidget * p_widget_central = new QWidget( this );
+		setCentralWidget( p_widget_central );
 
 
-		QHBoxLayout * central_layout = new QHBoxLayout( widget_central );
-		central_layout->setSpacing( 0 );
-		central_layout->setContentsMargins( 0/*left*/, 0/*top*/, 4/*right*/, 4/*bottom*/ );
+		QHBoxLayout * p_central_layout = new QHBoxLayout( p_widget_central );
+		p_central_layout->setSpacing( 0 );
+		p_central_layout->setContentsMargins( 0/*left*/, 0/*top*/, 4/*right*/, 4/*bottom*/ );
 
-		QWidget * widget_ctrl = new QWidget( widget_central ); widget_ctrl->setMaximumWidth( 140 );
-		QWidget * widget_view = new QWidget( widget_central );
+		QWidget * p_widget_ctrl = new QWidget( p_widget_central ); p_widget_ctrl->setMaximumWidth( 140 );
+		QWidget * p_widget_view = new QWidget( p_widget_central );
 
-		central_layout->addWidget( widget_ctrl );
-		central_layout->addWidget( widget_view );
+		p_central_layout->addWidget( p_widget_ctrl );
+		p_central_layout->addWidget( p_widget_view );
 
 		{ // Left side
-			QVBoxLayout * layout_ctrl = new QVBoxLayout( widget_ctrl );
-			layout_ctrl->setObjectName( "layout_ctrl" ); // For DEBUG
+			QVBoxLayout * p_layout_ctrl = new QVBoxLayout( p_widget_ctrl );
+			p_layout_ctrl->setObjectName( "p_layout_ctrl" ); // For DEBUG
 
 			auto add_tool_button = [this]( QLayout * p_layout, QWidget * p_parent, const QString & name, auto && slot ) {
 				QPushButton * p = new QPushButton( name, p_parent );
@@ -73,46 +83,43 @@ class MainWindow : public QMainWindow {
 				connect( p, &QPushButton::toggled, this, slot );
 			};
 
-			add_tool_button( layout_ctrl, widget_ctrl, "Редактирование", [&]( bool toggled ){ if ( toggled ) { qDebug() << "tool: edit"  ; m_tool = tool_e::edit; } } );
-			add_tool_button( layout_ctrl, widget_ctrl, "Сплошная",       [&]( bool toggled ){ if ( toggled ) { qDebug() << "tool: solid" ; m_tool = tool_e::line_solid; } } );
-			add_tool_button( layout_ctrl, widget_ctrl, "Пунктирная",     [&]( bool toggled ){ if ( toggled ) { qDebug() << "tool: dashed"; m_tool = tool_e::line_dashed; } } );
-			add_tool_button( layout_ctrl, widget_ctrl, "Размер",         [&]( bool toggled ){ if ( toggled ) { qDebug() << "tool: size"  ; m_tool = tool_e::size; } } );
-			add_tool_button( layout_ctrl, widget_ctrl, "Текст",          [&]( bool toggled ){ if ( toggled ) { qDebug() << "tool: text"  ; m_tool = tool_e::text; } } );
+			add_tool_button( p_layout_ctrl, p_widget_ctrl, "Редактирование", [&]( bool toggled ){ if ( toggled ) { qDebug() << "tool: edit"  ; m_tool = tool_e::edit; } } );
+			add_tool_button( p_layout_ctrl, p_widget_ctrl, "Сплошная",       [&]( bool toggled ){ if ( toggled ) { qDebug() << "tool: solid" ; m_tool = tool_e::line_solid; } } );
+			add_tool_button( p_layout_ctrl, p_widget_ctrl, "Пунктирная",     [&]( bool toggled ){ if ( toggled ) { qDebug() << "tool: dashed"; m_tool = tool_e::line_dashed; } } );
+			add_tool_button( p_layout_ctrl, p_widget_ctrl, "Размер",         [&]( bool toggled ){ if ( toggled ) { qDebug() << "tool: size"  ; m_tool = tool_e::size; } } );
+			add_tool_button( p_layout_ctrl, p_widget_ctrl, "Текст",          [&]( bool toggled ){ if ( toggled ) { qDebug() << "tool: text"  ; m_tool = tool_e::text; } } );
 
-			layout_ctrl->addWidget( new QLabel( "Размер (мм.):" ) );
+			p_layout_ctrl->addWidget( new QLabel( "Размер (мм.):" ) );
 			{
 				QHBoxLayout * layout_ctrl_size = new QHBoxLayout;
 
-				QLineEdit * p;
-				p = new QLineEdit( "400", this );
-				//p->setInputMask( "D" ); // D - character of the Number category and larger than zero required, such as 1-9
-				p->setValidator( new QIntValidator( 10/*min*/, 999/*max*/, this ) );
-				layout_ctrl_size->addWidget( p );
+				m_edit_width = new QLineEdit( "400", this );
+				m_edit_width->setValidator( new QIntValidator( 10/*min*/, 1999/*max*/, this ) );
+				layout_ctrl_size->addWidget( m_edit_width );
 
 				layout_ctrl_size->addWidget( new QLabel( "x", this ) );
 
-				p = new QLineEdit( "300", this );
-				p->setValidator( new QIntValidator( 10/*min*/, 999/*max*/, this ) );
-				layout_ctrl_size->addWidget( p );
+				m_edit_height = new QLineEdit( "300", this );
+				m_edit_height->setValidator( new QIntValidator( 10/*min*/, 1999/*max*/, this ) );
+				layout_ctrl_size->addWidget( m_edit_height );
 
-				//layout_ctrl_size->setAlignment( Qt::AlignLeft );
-				layout_ctrl->addLayout( layout_ctrl_size );
+				p_layout_ctrl->addLayout( layout_ctrl_size );
+
+				connect(  m_edit_width, &QLineEdit::editingFinished, this, size_changed );
+				connect( m_edit_height, &QLineEdit::editingFinished, this, size_changed );
 			}
 
-			layout_ctrl->addWidget( new QPushButton( "Удалить", this ) );
-			layout_ctrl->addWidget( new QPushButton( "...", this ) );
-			layout_ctrl->addStretch( 0 );
+			p_layout_ctrl->addWidget( new QPushButton( "Удалить", this ) );
+			p_layout_ctrl->addWidget( new QPushButton( "...", this ) );
+			p_layout_ctrl->addStretch( 0 );
 		}
 
 		{ // Right side
-			//int w = edit_w->text().toInt();
-
-			m_scene = new QGraphicsScene( 0/*x*/, 0/*y*/, 100/*w*/, 100/*h*/, widget_view );
+			m_scene = new QGraphicsScene( -1000/*x*/, -1000/*y*/, 2000/*w*/, 2000/*h*/, p_widget_view );
 			m_scene->setFocusOnTouch( true );
-			m_view = new graphics_view( m_scene, widget_view );
-			//m_scene->addItem( m_grid );
-			central_layout->addWidget( m_view );
-
+			m_view = new graphics_view( m_scene, p_widget_view );
+			m_view->set_canvas_size( get_size() );
+			p_central_layout->addWidget( m_view );
 		}
 	}
 
@@ -123,8 +130,8 @@ protected:
 	}
 
 public:
-	MainWindow( QWidget * parent = nullptr )
-		: QMainWindow( parent )
+	MainWindow( QWidget * p_parent = nullptr )
+		: QMainWindow( p_parent )
 		, m_settings( this )
 	{
 		setWindowTitle( "VectorDraw" );
@@ -154,6 +161,7 @@ private slots:
 		m_scene->render( &painter );
 	}
 
+#if 0
 	void line_solid() {
 		//QGraphicsLineItem * p = m_scene->addLine( 100, 100, 300, 200 );
 		QGraphicsLineItem * p = m_scene->addLine( 100, 100, 300, 200, QPen( Qt::DashLine ) );
@@ -162,6 +170,11 @@ private slots:
 		p->setFlags( QGraphicsItem::ItemIsMovable | QGraphicsItem::ItemIsSelectable | QGraphicsItem::ItemIsFocusable );
 		//stackBefore(const QGraphicsItem *sibling)
 		//m_scene->setFocusItem( p );
+	}
+#endif
+
+	void size_changed() {
+		m_view->set_canvas_size( get_size() );
 	}
 
 private:
