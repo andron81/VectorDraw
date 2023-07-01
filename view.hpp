@@ -5,48 +5,73 @@
 class graphics_view : public QGraphicsView {
 	Q_OBJECT
 
-	int			m_scale	= 1;
+	const int			m_scale_factor_min	= 1;
+	const int			m_scale_factor_max	= 200;
+	const int			m_scale_factor_div	= 10;
+	int					m_scale_factor		= m_scale_factor_div;
+
+	QGraphicsRectItem *	m_scene_rect;
+
+	void update_zoom() {
+		QTransform tform;
+		qreal scale = qreal(m_scale_factor) / m_scale_factor_div;
+		tform.scale( scale, scale );
+		setTransform( tform );
+	}
 
 public:
-	graphics_view( QGraphicsScene * scene, QWidget * parent )
-		: QGraphicsView( scene, parent )
+	graphics_view( QGraphicsScene * p_scene, QWidget * p_parent )
+		: QGraphicsView( p_scene, p_parent )
 	{
 		setDragMode( QGraphicsView::ScrollHandDrag );
-		//m_view->setDragMode( QGraphicsView::RubberBandDrag );
 		setInteractive( true );
 		setRenderHint( QPainter::Antialiasing, true );
 		setViewportUpdateMode( QGraphicsView::SmartViewportUpdate );
-		//setTransformationAnchor( QGraphicsView::AnchorUnderMouse );
+		setTransformationAnchor( QGraphicsView::AnchorUnderMouse );
 
 		setBackgroundBrush( Qt::gray );
 		centerOn( 0, 0 );
 
-		QTransform transform;
-		transform.scale( m_scale, m_scale );
-		//qreal shift = 0.5 / scale;
-		//transform.translate(shift, shift);
-		setTransform( transform );
+		m_scene_rect = scene()->addRect( sceneRect(), Qt::NoPen, QBrush( QColor( 255, 255, 255 ) ) );
+		m_scene_rect->setFlag( QGraphicsItem::ItemStacksBehindParent );
+
+		QGraphicsLineItem * p = scene()->addLine( -100, 0, 100, 0, QPen( Qt::DashLine ) );
+		p->setAcceptHoverEvents( true );
+		p->setAcceptTouchEvents( true );
+		p->setFlags( QGraphicsItem::ItemIsMovable | QGraphicsItem::ItemIsSelectable | QGraphicsItem::ItemIsFocusable );
+
+		update_zoom();
+	}
+
+	void set_canvas_size( const QSize & size ) {
+		int w = size.width();
+		int h = size.height();
+		m_scene_rect->setRect( -w / 2, -h / 2, w, h );
 	}
 
 protected:
-	void wheelEvent( QWheelEvent * event ) override {
-		//qDebug() << __FUNCTION__ << ", angle: " << event->angleDelta().y() << ", pixel: " << event->pixelDelta().y();
-		//if ( event->modifiers() & Qt::ShiftModifier )
+	void wheelEvent( QWheelEvent * p_event ) override {
+		//QGraphicsView::wheelEvent( p_event ); // I don't need default QGraphicsView wheel behaviour
 
-		if ( event->modifiers() & Qt::ControlModifier ) {
-			m_scale += event->angleDelta().y() > 0 ? 1 : -1;
-			if ( m_scale <  1 ) m_scale = 1;
-			if ( m_scale > 10 ) m_scale = 10;
-
-			QTransform tform;
-			tform.scale( m_scale, m_scale );
-			setTransform( tform );
+		if ( p_event->modifiers() & Qt::ControlModifier ) {
+			m_scale_factor += p_event->angleDelta().y() > 0 ? 1 : -1;
+			m_scale_factor = std::clamp( m_scale_factor, m_scale_factor_min, m_scale_factor_max );
+			update_zoom();
 		}
 	}
 
-	void resizeEvent( QResizeEvent * event ) override { qDebug() << __FUNCTION__; }
+	void mouseMoveEvent( QMouseEvent * p_event ) override {
+		QGraphicsView::mouseMoveEvent( p_event ); // Forward to base
+
+#if 0
+		if ( QGraphicsItem * p_item = itemAt( p_event->position().toPoint() ) ) {
+			//p_item->setFocus();
+			p_item->setSelected( true );
+		}
+#endif
+	}
+
 	void scrollContentsBy( int dx, int dy ) override {
-		//qDebug() << __FUNCTION__;
-		QGraphicsView::scrollContentsBy( dx, dy );
+		QGraphicsView::scrollContentsBy( dx, dy ); // Forward to base
 	}
 }; // class graphics_view
