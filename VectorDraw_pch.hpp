@@ -7,6 +7,7 @@
 #include <QFileInfo>
 #include <QSettings>
 
+#include <QMessageBox>
 #include <QMainWindow>
 #include <QWidget>
 #include <QMenuBar>
