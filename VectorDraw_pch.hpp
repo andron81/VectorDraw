@@ -12,6 +12,7 @@
 #include <QWidget>
 #include <QMenuBar>
 #include <QPrinter>
+#include <QFileDialog>
 
 #include <QVBoxLayout>
 

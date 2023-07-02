@@ -33,7 +33,7 @@ class MainWindow : public QMainWindow {
 		// File
 		QMenu * p_file = menuBar()->addMenu( "&Файл" );
 		add_menu_action( p_file, "&Новый"			, &MainWindow::act_new );
-		add_menu_action( p_file, "&Сохранить PNG"	, &MainWindow::act_save_png );
+		add_menu_action( p_file, "&Сохранить как...", &MainWindow::act_save_image );
 		add_menu_action( p_file, "&Печать"			, &MainWindow::act_print );
 		p_file->addSeparator();
 		add_menu_action( p_file, "Вы&ход"			, &MainWindow::close );
@@ -155,8 +155,8 @@ private slots:
 		qDebug() << __FUNCTION__;
 	}
 
-	void act_save_png() const {
-		util::save_png( m_view );
+	void act_save_image() const {
+		util::save_image( m_view );
 	}
 
 	void act_print() const {
