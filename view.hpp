@@ -41,6 +41,15 @@ public:
 		update_zoom();
 	}
 
+
+	QPoint get_canvas_pos() const {
+		return mapFromScene( m_canvas->rect().topLeft() );
+	}
+
+	QSize get_canvas_size() const {
+		return m_canvas->rect().size().toSize();
+	}
+
 	void set_canvas_size( const QSize & size ) {
 		int w = size.width();
 		int h = size.height();

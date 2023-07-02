@@ -4,6 +4,7 @@
 #include "settings.hpp"
 #include "view.hpp"
 #include "painter.hpp"	// tool_e
+#include "util.hpp"
 
 class MainWindow : public QMainWindow {
 	Q_OBJECT
@@ -31,10 +32,11 @@ class MainWindow : public QMainWindow {
 
 		// File
 		QMenu * p_file = menuBar()->addMenu( "&Файл" );
-		add_menu_action( p_file, "&Новый" , &MainWindow::act_new );
-		add_menu_action( p_file, "&Печать", &MainWindow::act_print );
+		add_menu_action( p_file, "&Новый"			, &MainWindow::act_new );
+		add_menu_action( p_file, "&Сохранить PNG"	, &MainWindow::act_save_png );
+		add_menu_action( p_file, "&Печать"			, &MainWindow::act_print );
 		p_file->addSeparator();
-		add_menu_action( p_file, "Вы&ход" , &MainWindow::close );
+		add_menu_action( p_file, "Вы&ход"			, &MainWindow::close );
 
 		// Help
 		QMenu * p_help = menuBar()->addMenu( "&Помощь" );
@@ -91,13 +93,13 @@ class MainWindow : public QMainWindow {
 			{
 				QHBoxLayout * layout_ctrl_size = new QHBoxLayout;
 
-				m_edit_width = new QLineEdit( "400", this );
+				m_edit_width = new QLineEdit( "1000", this );
 				m_edit_width->setValidator( new QIntValidator( 10/*min*/, 1999/*max*/, this ) );
 				layout_ctrl_size->addWidget( m_edit_width );
 
 				layout_ctrl_size->addWidget( new QLabel( "x", this ) );
 
-				m_edit_height = new QLineEdit( "300", this );
+				m_edit_height = new QLineEdit( "700", this );
 				m_edit_height->setValidator( new QIntValidator( 10/*min*/, 1999/*max*/, this ) );
 				layout_ctrl_size->addWidget( m_edit_height );
 
@@ -149,13 +151,16 @@ public:
 	}
 
 private slots:
-	void act_new() {
+	void act_new() const {
 		qDebug() << __FUNCTION__;
 	}
 
-	void act_print() {
+	void act_save_png() const {
+		util::save_png( m_view );
+	}
+
+	void act_print() const {
 		QPrinter printer( QPrinter::HighResolution );
-		//printer.setPaperSize( QPrinter::A4 );
 		QPainter painter( &printer );
 		m_scene->render( &painter );
 	}
