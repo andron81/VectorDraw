@@ -35,7 +35,12 @@ message( STATUS "   Build type: ${CMAKE_BUILD_TYPE}" )
 message( STATUS "           Qt: ${Qt6_DIR}" )
 message( STATUS " -------------------------------------------------------------------------------------------" )
 
-add_executable( ${CMAKE_PROJECT_NAME}
+# This command sets project-wide defaults for a typical Qt application.
+qt_standard_project_setup()
+
+# It is a wrapper around the built-in add_executable() command, and provides additional logic to automatically handle things
+# like linking of Qt plugins in static Qt builds, platform-specific customization of library names, and so on.
+qt_add_executable( ${CMAKE_PROJECT_NAME}
 	settings.hpp
 	view.hpp
 	VectorDraw.cpp
