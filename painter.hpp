@@ -48,18 +48,15 @@ public:
 
 	void mouse_move_event( QMouseEvent * p_event ) {
 		QPointF	secondPoint	= m_view->mapToScene( p_event->pos() );
-		if ((abs(firstPoint.x()-secondPoint.x())) <
-		abs(secondPoint.y() - firstPoint.y())	)
-		{secondPoint.setX(firstPoint.x()); qDebug() <<"x";
-		}
+		if ((abs(firstPoint.x()-secondPoint.x())) < abs(secondPoint.y() - firstPoint.y())	)
+		secondPoint.setX(firstPoint.x()); 
 		else 
-		{secondPoint.setY(firstPoint.y()); qDebug() <<"y";}
+		secondPoint.setY(firstPoint.y());
 		
 		if ( m_item ) {
 			switch ( m_tool ) {
 				case tool_e::line_solid: [[fallthrough]];
 				case tool_e::line_dashed: {
-					qDebug() <<"kuku";
 					QGraphicsLineItem * p = static_cast<QGraphicsLineItem *>( m_item );
 					p->setLine( QLineF( p->line().p1(), secondPoint ) );
 				} break;
