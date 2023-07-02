@@ -49,7 +49,7 @@ public:
 			switch ( m_tool ) {
 				case tool_e::line_solid: [[fallthrough]];
 				case tool_e::line_dashed: {
-					QGraphicsLineItem * p = static_cast<QGraphicsLineItem *>( m_item );
+					QGraphicsLineItem * p = qgraphicsitem_cast<QGraphicsLineItem *>( m_item );
 					float xFirstPoint = p->line().x1();
 					float yFirstPoint = p->line().y1();
 
