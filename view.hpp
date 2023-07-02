@@ -11,7 +11,7 @@ class graphics_view : public QGraphicsView {
 	const int			m_scale_factor_div	= 10;
 	int					m_scale_factor		= m_scale_factor_div;
 
-	QGraphicsRectItem *	m_scene_rect;	// Canvas visualisation primitive
+	QGraphicsRectItem *	m_canvas;	// Canvas visualisation primitive
 	painter				m_painter;
 
 	void update_zoom() {
@@ -35,8 +35,8 @@ public:
 		setBackgroundBrush( Qt::gray );
 		centerOn( 0, 0 );
 
-		m_scene_rect = scene()->addRect( sceneRect(), Qt::NoPen, QBrush( QColor( 255, 255, 255 ) ) );
-		m_scene_rect->setFlag( QGraphicsItem::ItemStacksBehindParent );
+		m_canvas = scene()->addRect( sceneRect(), Qt::NoPen, QBrush( QColor( 255, 255, 255 ) ) );
+		m_canvas->setFlag( QGraphicsItem::ItemStacksBehindParent );
 
 		update_zoom();
 	}
@@ -44,7 +44,7 @@ public:
 	void set_canvas_size( const QSize & size ) {
 		int w = size.width();
 		int h = size.height();
-		m_scene_rect->setRect( -w / 2, -h / 2, w, h );
+		m_canvas->setRect( -w / 2, -h / 2, w, h );
 	}
 
 	void set_tool( tool_e tool ) {
