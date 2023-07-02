@@ -27,6 +27,7 @@ public:
 		switch ( m_tool ) {
 			case tool_e::line_solid: [[fallthrough]];
 			case tool_e::line_dashed:
+
 				if ( m_tool == tool_e::line_dashed ) {
 					pen = QPen( Qt::DashLine );
 				}
@@ -34,6 +35,9 @@ public:
 				if ( !m_item ) {
 					// First mouse pressing
 					m_item = m_view->scene()->addLine( QLineF( pt, pt ), pen );
+					m_item->setFlags( QGraphicsItem::ItemIsMovable | QGraphicsItem::ItemIsSelectable | QGraphicsItem::ItemIsFocusable );
+					m_item->setToolTip( "Test Tooltip" );
+
 				} else {
 					// Second mouse pressing
 					// Leave the item in scene as it is
