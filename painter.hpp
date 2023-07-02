@@ -23,7 +23,7 @@ public:
 
 	void mouse_press_event( QMouseEvent * p_event ) {
 		QPointF	pt	= m_view->mapToScene( p_event->pos() );
-		QPen	pen	= QPen(); // Default pen
+		QPen	pen	= QPen( Qt::SolidLine ); // Default pen
 
 		switch ( m_tool ) {
 			case tool_e::line_solid: [[fallthrough]];
