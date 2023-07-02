@@ -43,6 +43,7 @@ qt_standard_project_setup()
 qt_add_executable( ${CMAKE_PROJECT_NAME}
 	settings.hpp
 	view.hpp
+	painter.hpp
 	VectorDraw.cpp
 	VectorDraw.hpp
 	VectorDraw_pch.hpp )

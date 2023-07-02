@@ -3,11 +3,10 @@
 #include "VectorDraw_pch.hpp"
 #include "settings.hpp"
 #include "view.hpp"
+#include "painter.hpp"	// tool_e
 
 class MainWindow : public QMainWindow {
 	Q_OBJECT
-
-	enum class tool_e { edit, line_solid, line_dashed, text, size };
 
 	settings			m_settings;
 
@@ -16,8 +15,6 @@ class MainWindow : public QMainWindow {
 
 	QGraphicsScene *	m_scene;
 	graphics_view *		m_view;
-
-	tool_e				m_tool	= tool_e::edit;
 
 	QSize get_size() const {
 		return {
@@ -32,6 +29,7 @@ class MainWindow : public QMainWindow {
 			p_menu->addAction( p_act );
 		};
 
+		// File
 		QMenu * p_file = menuBar()->addMenu( "&Файл" );
 		add_menu_action( p_file, "&Новый" , &MainWindow::act_new );
 		add_menu_action( p_file, "&Печать", &MainWindow::act_print );
@@ -83,11 +81,11 @@ class MainWindow : public QMainWindow {
 				connect( p, &QPushButton::toggled, this, slot );
 			};
 
-			add_tool_button( p_layout_ctrl, p_widget_ctrl, "Редактирование", [&]( bool toggled ){ if ( toggled ) { qDebug() << "tool: edit"  ; m_tool = tool_e::edit; } } );
-			add_tool_button( p_layout_ctrl, p_widget_ctrl, "Сплошная",       [&]( bool toggled ){ if ( toggled ) { qDebug() << "tool: solid" ; m_tool = tool_e::line_solid; } } );
-			add_tool_button( p_layout_ctrl, p_widget_ctrl, "Пунктирная",     [&]( bool toggled ){ if ( toggled ) { qDebug() << "tool: dashed"; m_tool = tool_e::line_dashed; } } );
-			add_tool_button( p_layout_ctrl, p_widget_ctrl, "Размер",         [&]( bool toggled ){ if ( toggled ) { qDebug() << "tool: size"  ; m_tool = tool_e::size; } } );
-			add_tool_button( p_layout_ctrl, p_widget_ctrl, "Текст",          [&]( bool toggled ){ if ( toggled ) { qDebug() << "tool: text"  ; m_tool = tool_e::text; } } );
+			add_tool_button( p_layout_ctrl, p_widget_ctrl, "Редактирование", [&]( bool toggled ){ if ( toggled ) { qDebug() << "tool: edit"  ; m_view->set_tool( tool_e::edit ); } } );
+			add_tool_button( p_layout_ctrl, p_widget_ctrl, "Сплошная",       [&]( bool toggled ){ if ( toggled ) { qDebug() << "tool: solid" ; m_view->set_tool( tool_e::line_solid ); } } );
+			add_tool_button( p_layout_ctrl, p_widget_ctrl, "Пунктирная",     [&]( bool toggled ){ if ( toggled ) { qDebug() << "tool: dashed"; m_view->set_tool( tool_e::line_dashed ); } } );
+			add_tool_button( p_layout_ctrl, p_widget_ctrl, "Размер",         [&]( bool toggled ){ if ( toggled ) { qDebug() << "tool: size"  ; m_view->set_tool( tool_e::size ); } } );
+			add_tool_button( p_layout_ctrl, p_widget_ctrl, "Текст",          [&]( bool toggled ){ if ( toggled ) { qDebug() << "tool: text"  ; m_view->set_tool( tool_e::text ); } } );
 
 			p_layout_ctrl->addWidget( new QLabel( "Размер (мм.):" ) );
 			{

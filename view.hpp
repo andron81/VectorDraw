@@ -1,6 +1,7 @@
 ﻿#pragma once
 
 #include "VectorDraw_pch.hpp"
+#include "painter.hpp"
 
 class graphics_view : public QGraphicsView {
 	Q_OBJECT
@@ -10,9 +11,8 @@ class graphics_view : public QGraphicsView {
 	const int			m_scale_factor_div	= 10;
 	int					m_scale_factor		= m_scale_factor_div;
 
-	QGraphicsRectItem *	m_scene_rect;
-
-	QGraphicsItem *		m_item				= nullptr;		// Current painting item
+	QGraphicsRectItem *	m_scene_rect;	// Canvas visualisation primitive
+	painter				m_painter;
 
 	void update_zoom() {
 		QTransform tform;
@@ -24,6 +24,7 @@ class graphics_view : public QGraphicsView {
 public:
 	graphics_view( QGraphicsScene * p_scene, QWidget * p_parent )
 		: QGraphicsView( p_scene, p_parent )
+		, m_painter( this )
 	{
 		//setDragMode( QGraphicsView::ScrollHandDrag ); // Remove. Moved to keyPressEvent/keyReleaseEvent
 		setInteractive( true );
@@ -44,6 +45,10 @@ public:
 		int w = size.width();
 		int h = size.height();
 		m_scene_rect->setRect( -w / 2, -h / 2, w, h );
+	}
+
+	void set_tool( tool_e tool ) {
+		m_painter.set_tool( tool );
 	}
 
 protected:
@@ -81,25 +86,22 @@ protected:
 	void mousePressEvent( QMouseEvent * p_event ) override {
 		QGraphicsView::mousePressEvent( p_event ); // Forward to base
 
-		// TODO: check selected tool
-		QPointF pt = mapToScene( p_event->pos() );
-		m_item = scene()->addLine( QLineF( pt, pt ) );
+		// Process painter's mouse button event only if NoDrag
+		if ( dragMode() == QGraphicsView::NoDrag ) {
+			m_painter.mouse_press_event( p_event );
+		}
 	}
 
+#if 0
 	void mouseReleaseEvent( QMouseEvent * p_event ) override {
 		QGraphicsView::mouseReleaseEvent( p_event ); // Forward to base
-
-		m_item = nullptr; // Stop drawing the item
+		m_painter.mouse_release_event( p_event );
 	}
+#endif
 
 	void mouseMoveEvent( QMouseEvent * p_event ) override {
 		QGraphicsView::mouseMoveEvent( p_event ); // Forward to base
-
-		// TODO: check selected tool
-		if ( m_item ) {
-			QGraphicsLineItem * p = static_cast<QGraphicsLineItem *>( m_item );
-			p->setLine( QLineF( p->line().p1(), mapToScene( p_event->pos() ) ) );
-		}
+		m_painter.mouse_move_event( p_event );
 	}
 
 	void scrollContentsBy( int dx, int dy ) override {
