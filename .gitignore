@@ -2,6 +2,7 @@ _*
 *.log
 *.ini
 *.png
+z.cmd
 
 # VS
 .*
