@@ -11,8 +11,10 @@ class graphics_view : public QGraphicsView {
 	const int			m_scale_factor_div	= 10;
 	int					m_scale_factor		= m_scale_factor_div;
 
-	QGraphicsRectItem *	m_canvas;	// Canvas visualisation primitive
+	QGraphicsRectItem *	m_canvas;	// Canvas visualization primitive
 	painter				m_painter;
+
+	QGraphicsItem *		m_focus;	// Focused item
 
 	void update_zoom() {
 		QTransform tform;
@@ -29,7 +31,7 @@ public:
 		//setDragMode( QGraphicsView::ScrollHandDrag ); // Remove. Moved to keyPressEvent/keyReleaseEvent
 		setInteractive( true );
 		setRenderHint( QPainter::Antialiasing, true );
-		setViewportUpdateMode( QGraphicsView::SmartViewportUpdate );
+		setViewportUpdateMode( QGraphicsView::FullViewportUpdate );
 		setTransformationAnchor( QGraphicsView::AnchorUnderMouse );
 
 		setBackgroundBrush( Qt::gray );
@@ -37,6 +39,13 @@ public:
 
 		m_canvas = scene()->addRect( sceneRect(), Qt::NoPen, QBrush( QColor( 255, 255, 255 ) ) );
 		m_canvas->setFlag( QGraphicsItem::ItemStacksBehindParent );
+
+
+		connect( scene(), &QGraphicsScene::focusItemChanged, this,
+			[&]( QGraphicsItem * p_new, QGraphicsItem * p_old, Qt::FocusReason reason ) {
+				qDebug() << "new: " << p_new << ", old: " << p_old;
+				m_focus = p_new;
+			} );
 
 		update_zoom();
 	}
@@ -64,7 +73,18 @@ protected:
 
 	// Keyboard events...
 	void keyPressEvent( QKeyEvent * p_event ) override {
-		QGraphicsView::keyPressEvent( p_event ); // Forward to base
+		//QGraphicsView::keyPressEvent( p_event ); // Forward to base
+
+		if ( m_focus ) {
+
+			int offset = p_event->modifiers() & Qt::ShiftModifier ? 10 : 1;
+			switch ( p_event->key() /*int*/ ) {
+				case Qt::Key_Up:	m_focus->moveBy(       0, -offset ); break;
+				case Qt::Key_Left:	m_focus->moveBy( -offset,       0 ); break;
+				case Qt::Key_Right:	m_focus->moveBy(  offset,       0 ); break;
+				case Qt::Key_Down:	m_focus->moveBy(       0,  offset ); break;
+			}
+		}
 
 		// Enable ScrollHandDrag if Ctrl pressed
 		if ( p_event->modifiers() & Qt::ControlModifier ) {
@@ -73,7 +93,7 @@ protected:
 	}
 
 	void keyReleaseEvent( QKeyEvent * p_event ) override {
-		QGraphicsView::keyReleaseEvent( p_event ); // Forward to base
+		//QGraphicsView::keyReleaseEvent( p_event ); // Forward to base
 
 		// Disable ScrollHandDrag if Ctrl unpressed
 		if ( ~(p_event->modifiers() & Qt::ControlModifier) ) {
@@ -113,7 +133,35 @@ protected:
 		m_painter.mouse_move_event( p_event );
 	}
 
+	void paintEvent( QPaintEvent * p_event ) override {
+		QGraphicsView::paintEvent( p_event ); // Forward to base
+
+		if ( m_focus ) {
+			QPointF pos = m_focus->pos();
+
+			if ( m_focus->type() == QGraphicsLineItem::Type ) {
+
+				QGraphicsLineItem * p_line = qgraphicsitem_cast<QGraphicsLineItem *>( m_focus );
+
+				QPointF p1 = pos + p_line->line().p1();
+				QPointF p2 = pos + p_line->line().p2();
+
+				qreal r = 5.5f;
+				QPainter painter( viewport() );
+				painter.setRenderHint( QPainter::Antialiasing );
+				painter.setPen( QColor( 255, 0, 0, 127 ) );
+				painter.setBrush( QBrush( QColor( 0, 255, 0, 64 ) ) );
+				painter.drawEllipse( QPointF( mapFromScene( p1 ) ), r, r );
+				painter.drawEllipse( QPointF( mapFromScene( p2 ) ), r, r );
+			}
+		}
+
+		//qDebug() << "*";
+	}
+
+#if 0
 	void scrollContentsBy( int dx, int dy ) override {
 		QGraphicsView::scrollContentsBy( dx, dy ); // Forward to base
 	}
+#endif
 }; // class graphics_view
