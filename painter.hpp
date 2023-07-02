@@ -60,7 +60,6 @@ public:
 					else 
 					secondPoint.setY(yFirstPoint);
 
-
 					p->setLine( QLineF( p->line().p1(), secondPoint ) );
 				} break;
 			}
