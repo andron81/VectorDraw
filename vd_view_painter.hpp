@@ -1,7 +1,5 @@
 ﻿#pragma once
 
-//#include "VectorDraw_pch.hpp"
-
 namespace vd {
 
 enum class tool_e { none, edit, line_solid, line_dashed, text, size };

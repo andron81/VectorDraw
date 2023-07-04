@@ -1,7 +1,5 @@
 ﻿#pragma once
 
-#include "vd_view_painter.hpp"
-
 namespace vd {
 
 class view : public QGraphicsView {

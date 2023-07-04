@@ -8,20 +8,6 @@ class menu_bar {
 public:
 	menu_bar( QMainWindow * p_main_window ) : m_main_window( p_main_window ) { Q_ASSERT( m_main_window ); }
 
-#if 0
-	QMenu * add_menu( const QString & name ) {
-		return m_main_window->menuBar()->addMenu( name );
-	}
-
-	template <typename QObjectT, typename SlotT>
-	void add_menu_item( QMenu * p_menu, const QString & name, QObjectT * p_obj, SlotT && slot ) {
-		QAction * p_act = new QAction( name, m_main_window );
-		QObject::connect( p_act, &QAction::triggered, p_obj, std::forward<SlotT>( slot ) );
-		p_menu->addAction( p_act );
-		//return p_menu;
-	}
-#endif
-
 	template <typename QObjectT, std::size_t... Is, typename Tuple>
 	constexpr void add_impl( QObjectT * p_obj, QMenu * p_menu, std::index_sequence <Is...>, Tuple t ) {
 		([&]{

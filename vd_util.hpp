@@ -27,13 +27,4 @@ static void save_image( view * p_view ) {
 	file.save( filename );
 }
 
-#if 0
-template <typename QObjectT, typename SlotT>
-static void add_menu_item( QObjectT * p_parent, QMenu * p_menu, const QString & name, SlotT && slot ) {
-	QAction * p_act = new QAction( name, p_parent );
-	QObjectT::connect( p_act, &QAction::triggered, p_parent, std::forward<SlotT>( slot ) );
-	p_menu->addAction( p_act );
-}
-#endif
-
 } // namespace vd::util
