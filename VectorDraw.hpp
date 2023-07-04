@@ -55,9 +55,9 @@ public:
 		m_menu_bar.add( this, "&Помощь",
 			"&О программе", [this]{
 					QMessageBox::about( this,
-						"О VectorDraw",
-						"<p><b>VectorDraw</b> версия 0.1<br></p>"
-						"<p><a href='https://github.com/andron81/VectorDraw'>VectorDraw на GitHub</a></p>" );
+						"О Vector Draw",
+						"<p><b>Vector Draw</b> версия 0.1<br></p>"
+						"<p><a href='https://github.com/andron81/VectorDraw'>Vector Draw на GitHub</a></p>" );
 				},
 			"О &Qt", &QApplication::aboutQt );
 	}
