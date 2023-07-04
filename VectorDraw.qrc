@@ -1,0 +1,10 @@
+﻿<!DOCTYPE RCC><RCC version="1.0">
+<qresource>
+	<file>images/tool_edit.svg</file>
+	<file>images/tool_size.svg</file>
+	<file>images/tool_text.svg</file>
+	<file>images/tool_remove.svg</file>
+	<file>images/tool_line_solid.svg</file>
+	<file>images/tool_line_dashed.svg</file>
+</qresource>
+</RCC>

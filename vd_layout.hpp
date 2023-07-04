@@ -67,18 +67,18 @@ public:
 			};
 
 			add_hbox( p_layout_ctrl, [&]( QHBoxLayout * p ) {
-				add_tool_button( p, p_widget_ctrl, "icons/tool_edit.svg"       , "Редактирование", [&]( bool toggled ){ if ( toggled ) { m_view->set_tool( vd::tool_e::edit ); } } );
-				add_tool_button( p, p_widget_ctrl, "icons/tool_size.svg"       , "Размер",         [&]( bool toggled ){ if ( toggled ) { m_view->set_tool( vd::tool_e::size ); } } );
+				add_tool_button( p, p_widget_ctrl, ":/images/tool_edit.svg"       , "Редактирование", [&]( bool toggled ){ if ( toggled ) { m_view->set_tool( vd::tool_e::edit ); } } );
+				add_tool_button( p, p_widget_ctrl, ":/images/tool_size.svg"       , "Размер",         [&]( bool toggled ){ if ( toggled ) { m_view->set_tool( vd::tool_e::size ); } } );
 			} );
 
 			add_hbox( p_layout_ctrl, [&]( QHBoxLayout * p ) {
-				add_tool_button( p, p_widget_ctrl, "icons/tool_line_solid.svg" , "Сплошная",       [&]( bool toggled ){ if ( toggled ) { m_view->set_tool( vd::tool_e::line_solid ); } } );
-				add_tool_button( p, p_widget_ctrl, "icons/tool_line_dashed.svg", "Пунктирная",     [&]( bool toggled ){ if ( toggled ) { m_view->set_tool( vd::tool_e::line_dashed ); } } );
+				add_tool_button( p, p_widget_ctrl, ":/images/tool_line_solid.svg" , "Сплошная",       [&]( bool toggled ){ if ( toggled ) { m_view->set_tool( vd::tool_e::line_solid ); } } );
+				add_tool_button( p, p_widget_ctrl, ":/images/tool_line_dashed.svg", "Пунктирная",     [&]( bool toggled ){ if ( toggled ) { m_view->set_tool( vd::tool_e::line_dashed ); } } );
 			} );
 
 			add_hbox( p_layout_ctrl, [&]( QHBoxLayout * p ) {
-				add_tool_button( p, p_widget_ctrl, "icons/tool_text.svg"       , "Текст",          [&]( bool toggled ){ if ( toggled ) { m_view->set_tool( vd::tool_e::text ); } } );
-				add_tool_button( p, p_widget_ctrl, "icons/tool_remove.svg"     , "Удалить",        [&]( bool toggled ){ if ( toggled ) { m_view->set_tool( vd::tool_e::remove ); } } );
+				add_tool_button( p, p_widget_ctrl, ":/images/tool_text.svg"       , "Текст",          [&]( bool toggled ){ if ( toggled ) { m_view->set_tool( vd::tool_e::text ); } } );
+				add_tool_button( p, p_widget_ctrl, ":/images/tool_remove.svg"     , "Удалить",        [&]( bool toggled ){ if ( toggled ) { m_view->set_tool( vd::tool_e::remove ); } } );
 			} );
 
 			p_layout_ctrl->addWidget( new QLabel( "Размер (мм.):" ) );

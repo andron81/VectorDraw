@@ -58,7 +58,7 @@ public:
 
 		QGraphicsView::DragMode drag_mode = QGraphicsView::NoDrag;
 
-		//enum class tool_e { none, edit, line_solid, line_dashed, text, size };
+		//enum class tool_e { none, edit, line_solid, line_dashed, text, size, remove };
 		switch ( tool ) {
 			case tool_e::edit:
 				drag_mode = QGraphicsView::RubberBandDrag;
@@ -84,7 +84,6 @@ protected:
 		//QGraphicsView::keyPressEvent( p_event ); // Forward to base
 
 		if ( m_focus ) {
-
 			int offset = p_event->modifiers() & Qt::ShiftModifier ? 10 : 1;
 			switch ( p_event->key() /*int*/ ) {
 				case Qt::Key_Up:	m_focus->moveBy(       0, -offset ); break;
@@ -142,6 +141,7 @@ protected:
 		m_painter.mouse_move_event( p_event );
 	}
 
+#if 0
 	void paintEvent( QPaintEvent * p_event ) override {
 		QGraphicsView::paintEvent( p_event ); // Forward to base
 
@@ -167,6 +167,7 @@ protected:
 
 		//qDebug() << "*";
 	}
+#endif
 
 #if 0
 	void scrollContentsBy( int dx, int dy ) override {

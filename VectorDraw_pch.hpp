@@ -11,6 +11,7 @@
 #include <QMainWindow>
 #include <QWidget>
 #include <QMenuBar>
+#include <QStatusBar>
 #include <QPrinter>
 #include <QFileDialog>
 
@@ -22,6 +23,8 @@
 #include <QPushButton>
 #include <QRadioButton>
 
+#include <QUndoStack>
+#include <QUndoView>
 #include <QGraphicsScene>
 #include <QGraphicsView>
 #include <QGraphicsItem>

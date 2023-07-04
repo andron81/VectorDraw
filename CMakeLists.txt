@@ -51,7 +51,8 @@ qt_add_executable( ${CMAKE_PROJECT_NAME}
 
 	VectorDraw.cpp
 	VectorDraw.hpp
-	VectorDraw_pch.hpp )
+	VectorDraw_pch.hpp
+	VectorDraw.qrc )
 
 if( CMAKE_CXX_COMPILER_ID STREQUAL "Clang" OR CMAKE_CXX_COMPILER_ID STREQUAL "GNU" )
  if( CMAKE_BUILD_TYPE STREQUAL "Debug" )

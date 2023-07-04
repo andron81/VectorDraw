@@ -15,13 +15,15 @@
 class MainWindow : public QMainWindow {
 	Q_OBJECT
 
-	vd::settings		m_settings;
-	vd::menu_bar		m_menu_bar;
-	vd::layout			m_layout;
+	vd::settings	m_settings;
+	vd::menu_bar	m_menu_bar;
+	vd::layout		m_layout;
+
+	QUndoStack *	m_undo_stack	= nullptr;
+	QUndoView *		m_undo_view		= nullptr;
 
 protected:
 	void closeEvent( QCloseEvent * /*p_event*/ ) override {
-		qDebug() << __FUNCTION__;
 		m_settings.save();
 	}
 
@@ -31,7 +33,10 @@ public:
 		, m_settings( this )
 		, m_menu_bar( this )
 		, m_layout( this )
+		, m_undo_stack( new QUndoStack( this ) )
 	{
+		//statusBar()->showMessage( "Ready" );
+
 		setWindowTitle( "Vector Draw" );
 		if ( !m_settings.load() ) {
 			// Если нет файла настроек...
