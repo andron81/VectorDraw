@@ -2,7 +2,7 @@
 
 namespace vd {
 
-enum class tool_e { none, edit, line_solid, line_dashed, text, size };
+enum class tool_e { none, edit, line_solid, line_dashed, text, size, remove };
 
 class painter {
 	QGraphicsView *	m_view;
