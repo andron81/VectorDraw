@@ -26,6 +26,7 @@
 #include <QGraphicsView>
 #include <QGraphicsItem>
 #include <QStyleOptionGraphicsItem>
+#include <QGraphicsDropShadowEffect>
 
 #include <QWheelEvent>
 #include <QIntValidator>
