@@ -4,10 +4,10 @@ namespace vd::util {
 
 static void save_image( view * p_view ) {
 
-	QString filename = QFileDialog::getSaveFileName( nullptr, "Сохранить в...", ".", "Изображения (*.png *.jpg)" );
+	QString filename = QFileDialog::getSaveFileName( nullptr, "Сохранить", ".", "Изображения (*.png *.jpg)" );
 	if ( filename.isEmpty() ) return;
 
-	view_canvas * p_canvas = p_view->get_canvas();
+	const view_canvas * p_canvas = p_view->get_canvas();
 	Q_ASSERT( p_canvas );
 
 	QSize  canvas_sz( p_canvas->get_size() );
