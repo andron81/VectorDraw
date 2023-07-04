@@ -1,11 +1,14 @@
 ﻿#pragma once
 
+namespace vd {
+
 // Canvas visualization rect.
-class canvas : public QGraphicsRectItem {
+class view_canvas : public QGraphicsRectItem {
 public:
-	canvas() {
+	view_canvas() {
 		setFlag( QGraphicsItem::ItemStacksBehindParent );
-		setBrush( QBrush( QColor( 255, 255, 255 ) ) );
+		setPen( Qt::NoPen );
+		setBrush( QColor( 255, 255, 255 ) );
 	}
 
 	QPointF get_top_left() const {
@@ -22,5 +25,7 @@ public:
 		setRect( -w / 2, -h / 2, w, h );
 	}
 
-	virtual ~canvas() { qDebug() << __FUNCTION__; }
-}; // class canvas
+	virtual ~view_canvas() { qDebug() << __FUNCTION__; }
+}; // class view_canvas
+
+} // namespace vd

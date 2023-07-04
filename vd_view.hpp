@@ -1,20 +1,21 @@
 ﻿#pragma once
 
-#include "VectorDraw_pch.hpp"
-#include "painter.hpp"
+#include "vd_view_painter.hpp"
 
-class graphics_view : public QGraphicsView {
-	Q_OBJECT
+namespace vd {
+
+class view : public QGraphicsView {
+	//Q_OBJECT
 
 	const int			m_scale_factor_min	= 1;
 	const int			m_scale_factor_max	= 200;
 	const int			m_scale_factor_div	= 10;
 	int					m_scale_factor		= m_scale_factor_div;
 
-	QGraphicsRectItem *	m_canvas;	// Canvas visualization primitive
+	vd::view_canvas *	m_canvas;
 	painter				m_painter;
 
-	QGraphicsItem *		m_focus;	// Focused item
+	QGraphicsItem *		m_focus				= nullptr;	// Focused item
 
 	void update_zoom() {
 		QTransform tform;
@@ -24,22 +25,19 @@ class graphics_view : public QGraphicsView {
 	}
 
 public:
-	graphics_view( QGraphicsScene * p_scene, QWidget * p_parent )
+	view( QGraphicsScene * p_scene, QWidget * p_parent )
 		: QGraphicsView( p_scene, p_parent )
 		, m_painter( this )
 	{
-		//setDragMode( QGraphicsView::ScrollHandDrag ); // Remove. Moved to keyPressEvent/keyReleaseEvent
-		setInteractive( true );
+		//setInteractive( true );
 		setRenderHint( QPainter::Antialiasing, true );
 		setViewportUpdateMode( QGraphicsView::FullViewportUpdate );
 		setTransformationAnchor( QGraphicsView::AnchorUnderMouse );
-
 		setBackgroundBrush( Qt::gray );
 		centerOn( 0, 0 );
 
-		m_canvas = scene()->addRect( sceneRect(), Qt::NoPen, QBrush( QColor( 255, 255, 255 ) ) );
-		m_canvas->setFlag( QGraphicsItem::ItemStacksBehindParent );
-
+		m_canvas = new view_canvas;
+		scene()->addItem( m_canvas );
 
 		connect( scene(), &QGraphicsScene::focusItemChanged, this,
 			[&]( QGraphicsItem * p_new, QGraphicsItem * p_old, Qt::FocusReason reason ) {
@@ -50,26 +48,38 @@ public:
 		update_zoom();
 	}
 
-
-	QPoint get_canvas_pos() const {
-		return mapFromScene( m_canvas->rect().topLeft() );
-	}
-
-	QSize get_canvas_size() const {
-		return m_canvas->rect().size().toSize();
-	}
+	const view_canvas * get_canvas() const { return m_canvas; }
+	      view_canvas * get_canvas()       { return m_canvas; }
 
 	void set_canvas_size( const QSize & size ) {
-		int w = size.width();
-		int h = size.height();
-		m_canvas->setRect( -w / 2, -h / 2, w, h );
+		m_canvas->set_size( size );
 	}
 
 	void set_tool( tool_e tool ) {
+		qDebug() << __FUNCTION__ << ": " << int(tool);
+
+		QGraphicsView::DragMode drag_mode = QGraphicsView::NoDrag;
+
+		//enum class tool_e { none, edit, line_solid, line_dashed, text, size };
+		switch ( tool ) {
+			case tool_e::edit:
+				drag_mode = QGraphicsView::RubberBandDrag;
+				break;
+
+			case tool_e::line_solid: [[fallthrough]];
+			case tool_e::line_dashed:
+				//drag_mode = QGraphicsView::RubberBandDrag;
+				break;
+		}
+
+		setDragMode( drag_mode );
+
 		m_painter.set_tool( tool );
 	}
 
 protected:
+
+	QGraphicsView::DragMode	m_prev_drag_mode = QGraphicsView::NoDrag;
 
 	// Keyboard events...
 	void keyPressEvent( QKeyEvent * p_event ) override {
@@ -88,6 +98,7 @@ protected:
 
 		// Enable ScrollHandDrag if Ctrl pressed
 		if ( p_event->modifiers() & Qt::ControlModifier ) {
+			m_prev_drag_mode = dragMode();
 			setDragMode( QGraphicsView::ScrollHandDrag );
 		}
 	}
@@ -97,7 +108,7 @@ protected:
 
 		// Disable ScrollHandDrag if Ctrl unpressed
 		if ( ~(p_event->modifiers() & Qt::ControlModifier) ) {
-			setDragMode( QGraphicsView::NoDrag );
+			setDragMode( m_prev_drag_mode );
 		}
 	}
 
@@ -164,4 +175,6 @@ protected:
 		QGraphicsView::scrollContentsBy( dx, dy ); // Forward to base
 	}
 #endif
-}; // class graphics_view
+}; // class view
+
+} // namespace vd

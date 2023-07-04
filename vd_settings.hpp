@@ -1,6 +1,6 @@
 ﻿#pragma once
 
-#include "VectorDraw_pch.hpp"
+namespace vd {
 
 class settings : QSettings {
 	QMainWindow *	m_main_window;
@@ -27,3 +27,5 @@ public:
 		endGroup();
 	}
 }; // class settings
+
+} // namespace vd

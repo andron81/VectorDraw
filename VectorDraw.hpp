@@ -1,53 +1,32 @@
 #pragma once
 
 #include "VectorDraw_pch.hpp"
-#include "settings.hpp"
-#include "view.hpp"
-#include "painter.hpp"	// tool_e
-#include "util.hpp"
+#include "vd_settings.hpp"
+#include "vd_menu_bar.hpp"
 
+#include "vd_view_painter.hpp"	// tool_e
+#include "vd_view_canvas.hpp"
+#include "vd_view.hpp"
+
+#include "vd_util.hpp"
+
+// All classes that contain signals or slots must mention Q_OBJECT at the top of their declaration. They must also derive (directly or indirectly) from QObject.
 class MainWindow : public QMainWindow {
 	Q_OBJECT
 
-	settings			m_settings;
+	vd::settings		m_settings;
+	vd::menu_bar		m_menu_bar;
 
 	QLineEdit *			m_edit_width;
 	QLineEdit *			m_edit_height;
 
 	QGraphicsScene *	m_scene;
-	graphics_view *		m_view;
+	vd::view *			m_view;
 
 	QSize get_size() const {
 		return {
 			m_edit_width ->text().toInt(),
 			m_edit_height->text().toInt() };
-	}
-
-	void create_menu_bar() {
-		auto add_menu_action = [this]( QMenu * p_menu, const QString & name, auto && slot ) {
-			QAction * p_act = new QAction( name, this );
-			connect( p_act, &QAction::triggered, this, slot );
-			p_menu->addAction( p_act );
-		};
-
-		// File
-		QMenu * p_file = menuBar()->addMenu( "&Файл" );
-		add_menu_action( p_file, "&Новый"			, &MainWindow::act_new );
-		add_menu_action( p_file, "&Сохранить как...", &MainWindow::act_save_image );
-		add_menu_action( p_file, "&Печать"			, &MainWindow::act_print );
-		p_file->addSeparator();
-		add_menu_action( p_file, "Вы&ход"			, &MainWindow::close );
-
-		// Help
-		QMenu * p_help = menuBar()->addMenu( "&Помощь" );
-
-		add_menu_action( p_help, "О программе", [this]{
-				QMessageBox::about( this,
-					"О VectorDraw",
-					"<p><b>VectorDraw</b> версия 0.1<br></p>"
-					"<p><a href='https://github.com/andron81/VectorDraw'>VectorDraw на GitHub</a></p>" );
-			} );
-		add_menu_action( p_help, "О &Qt", &QApplication::aboutQt );
 	}
 
 	void create_controls() {
@@ -86,11 +65,11 @@ class MainWindow : public QMainWindow {
 				connect( p, &QPushButton::toggled, this, slot );
 			};
 
-			add_tool_button( p_layout_ctrl, p_widget_ctrl, "Редактирование", [&]( bool toggled ){ if ( toggled ) { m_view->set_tool( tool_e::edit ); } } );
-			add_tool_button( p_layout_ctrl, p_widget_ctrl, "Сплошная",       [&]( bool toggled ){ if ( toggled ) { m_view->set_tool( tool_e::line_solid ); } } );
-			add_tool_button( p_layout_ctrl, p_widget_ctrl, "Пунктирная",     [&]( bool toggled ){ if ( toggled ) { m_view->set_tool( tool_e::line_dashed ); } } );
-			add_tool_button( p_layout_ctrl, p_widget_ctrl, "Размер",         [&]( bool toggled ){ if ( toggled ) { m_view->set_tool( tool_e::size ); } } );
-			add_tool_button( p_layout_ctrl, p_widget_ctrl, "Текст",          [&]( bool toggled ){ if ( toggled ) { m_view->set_tool( tool_e::text ); } } );
+			add_tool_button( p_layout_ctrl, p_widget_ctrl, "Редактирование", [&]( bool toggled ){ if ( toggled ) { m_view->set_tool( vd::tool_e::edit ); } } );
+			add_tool_button( p_layout_ctrl, p_widget_ctrl, "Сплошная",       [&]( bool toggled ){ if ( toggled ) { m_view->set_tool( vd::tool_e::line_solid ); } } );
+			add_tool_button( p_layout_ctrl, p_widget_ctrl, "Пунктирная",     [&]( bool toggled ){ if ( toggled ) { m_view->set_tool( vd::tool_e::line_dashed ); } } );
+			add_tool_button( p_layout_ctrl, p_widget_ctrl, "Размер",         [&]( bool toggled ){ if ( toggled ) { m_view->set_tool( vd::tool_e::size ); } } );
+			add_tool_button( p_layout_ctrl, p_widget_ctrl, "Текст",          [&]( bool toggled ){ if ( toggled ) { m_view->set_tool( vd::tool_e::text ); } } );
 
 			p_layout_ctrl->addWidget( new QLabel( "Размер (мм.):" ) );
 			{
@@ -120,7 +99,7 @@ class MainWindow : public QMainWindow {
 		{ // Right side
 			m_scene = new QGraphicsScene( -1000/*x*/, -1000/*y*/, 2000/*w*/, 2000/*h*/, p_widget_view );
 			//m_scene->setFocusOnTouch( true );
-			m_view = new graphics_view( m_scene, p_widget_view );
+			m_view = new vd::view( m_scene, p_widget_view );
 			m_view->set_canvas_size( get_size() );
 			p_central_layout->addWidget( m_view );
 		}
@@ -136,6 +115,7 @@ protected:
 public:
 	MainWindow( QWidget * p_parent = nullptr )
 		: QMainWindow( p_parent )
+		, m_menu_bar( this )
 		, m_settings( this )
 	{
 		setWindowTitle( "VectorDraw" );
@@ -149,7 +129,25 @@ public:
 #endif
 		}
 
-		create_menu_bar();
+		// Create menu bar...
+		m_menu_bar.add( this, "&Файл",
+			"&Новый",				&MainWindow::act_new,
+			"&Сохранить как ...",	&MainWindow::act_save_image,
+			"&Печать",				&MainWindow::act_print,
+			nullptr, []{},	// separator
+			"Вы&ход",				&MainWindow::close
+		);
+
+		m_menu_bar.add( this, "&Помощь",
+			"&О программе", [this]{
+					QMessageBox::about( this,
+						"О VectorDraw",
+						"<p><b>VectorDraw</b> версия 0.1<br></p>"
+						"<p><a href='https://github.com/andron81/VectorDraw'>VectorDraw на GitHub</a></p>" );
+				},
+			"О &Qt", &QApplication::aboutQt );
+
+
 		create_controls();
 	}
 
@@ -159,7 +157,7 @@ private slots:
 	}
 
 	void act_save_image() const {
-		util::save_image( m_view );
+		vd::util::save_image( m_view );
 	}
 
 	void act_print() const {

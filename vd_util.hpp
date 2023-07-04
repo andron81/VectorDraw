@@ -1,13 +1,13 @@
 ﻿#pragma once
 
-namespace util {
+namespace vd::util {
 
-static void save_image( graphics_view * p_view ) {
+static void save_image( view * p_view ) {
 
 	QString filename = QFileDialog::getSaveFileName( nullptr, "Сохранить в...", ".", "Изображения (*.png *.jpg)" );
 	if ( filename.isEmpty() ) return;
 
-	canvas * p_canvas = p_view->get_canvas();
+	view_canvas * p_canvas = p_view->get_canvas();
 	Q_ASSERT( p_canvas );
 
 	QSize  canvas_sz( p_canvas->get_size() );
@@ -27,4 +27,13 @@ static void save_image( graphics_view * p_view ) {
 	file.save( filename );
 }
 
-} // namespace util
+#if 0
+template <typename QObjectT, typename SlotT>
+static void add_menu_item( QObjectT * p_parent, QMenu * p_menu, const QString & name, SlotT && slot ) {
+	QAction * p_act = new QAction( name, p_parent );
+	QObjectT::connect( p_act, &QAction::triggered, p_parent, std::forward<SlotT>( slot ) );
+	p_menu->addAction( p_act );
+}
+#endif
+
+} // namespace vd::util
