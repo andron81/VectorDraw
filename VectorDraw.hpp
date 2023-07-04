@@ -75,6 +75,9 @@ class MainWindow : public QMainWindow {
 				QPushButton * p = new QPushButton( name, p_parent );
 				p->setCheckable( true );
 
+				p->setIcon( QIcon( "icons/tool_edit.svg" ) );
+				p->setToolTip( name );
+
 				// If auto-exclusivity is enabled, checkable buttons that belong to the same parent widget behave as if they were part of the same exclusive button group.
 				// In an exclusive button group, only one button can be checked at any time; checking another button automatically unchecks the previously checked one.
 				p->setAutoExclusive( true );
@@ -83,11 +86,11 @@ class MainWindow : public QMainWindow {
 				connect( p, &QPushButton::toggled, this, slot );
 			};
 
-			add_tool_button( p_layout_ctrl, p_widget_ctrl, "Редактирование", [&]( bool toggled ){ if ( toggled ) { qDebug() << "tool: edit"  ; m_view->set_tool( tool_e::edit ); } } );
-			add_tool_button( p_layout_ctrl, p_widget_ctrl, "Сплошная",       [&]( bool toggled ){ if ( toggled ) { qDebug() << "tool: solid" ; m_view->set_tool( tool_e::line_solid ); } } );
-			add_tool_button( p_layout_ctrl, p_widget_ctrl, "Пунктирная",     [&]( bool toggled ){ if ( toggled ) { qDebug() << "tool: dashed"; m_view->set_tool( tool_e::line_dashed ); } } );
-			add_tool_button( p_layout_ctrl, p_widget_ctrl, "Размер",         [&]( bool toggled ){ if ( toggled ) { qDebug() << "tool: size"  ; m_view->set_tool( tool_e::size ); } } );
-			add_tool_button( p_layout_ctrl, p_widget_ctrl, "Текст",          [&]( bool toggled ){ if ( toggled ) { qDebug() << "tool: text"  ; m_view->set_tool( tool_e::text ); } } );
+			add_tool_button( p_layout_ctrl, p_widget_ctrl, "Редактирование", [&]( bool toggled ){ if ( toggled ) { m_view->set_tool( tool_e::edit ); } } );
+			add_tool_button( p_layout_ctrl, p_widget_ctrl, "Сплошная",       [&]( bool toggled ){ if ( toggled ) { m_view->set_tool( tool_e::line_solid ); } } );
+			add_tool_button( p_layout_ctrl, p_widget_ctrl, "Пунктирная",     [&]( bool toggled ){ if ( toggled ) { m_view->set_tool( tool_e::line_dashed ); } } );
+			add_tool_button( p_layout_ctrl, p_widget_ctrl, "Размер",         [&]( bool toggled ){ if ( toggled ) { m_view->set_tool( tool_e::size ); } } );
+			add_tool_button( p_layout_ctrl, p_widget_ctrl, "Текст",          [&]( bool toggled ){ if ( toggled ) { m_view->set_tool( tool_e::text ); } } );
 
 			p_layout_ctrl->addWidget( new QLabel( "Размер (мм.):" ) );
 			{
