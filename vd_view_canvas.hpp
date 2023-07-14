@@ -30,8 +30,6 @@ public:
 		int h = size.height();
 		setRect( -w / 2, -h / 2, w, h );
 	}
-
-	virtual ~view_canvas() { qDebug() << __FUNCTION__; }
 }; // class view_canvas
 
 } // namespace vd

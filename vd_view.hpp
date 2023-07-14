@@ -3,8 +3,6 @@
 namespace vd {
 
 class view : public QGraphicsView {
-	//Q_OBJECT
-
 	const int			m_scale_factor_min	= 1;
 	const int			m_scale_factor_max	= 200;
 	const int			m_scale_factor_div	= 10;
@@ -27,7 +25,6 @@ public:
 		: QGraphicsView( p_scene, p_parent )
 		, m_painter( this )
 	{
-		//setInteractive( true );
 		setRenderHint( QPainter::Antialiasing, true );
 		setViewportUpdateMode( QGraphicsView::FullViewportUpdate );
 		setTransformationAnchor( QGraphicsView::AnchorUnderMouse );
@@ -55,58 +52,56 @@ public:
 
 	void set_tool( tool_e tool ) {
 		qDebug() << __FUNCTION__ << ": " << int(tool);
-
-		QGraphicsView::DragMode drag_mode = QGraphicsView::NoDrag;
-
-		//enum class tool_e { none, edit, line_solid, line_dashed, text, size, remove };
-		switch ( tool ) {
-			case tool_e::edit:
-				drag_mode = QGraphicsView::RubberBandDrag;
-				break;
-
-			case tool_e::line_solid: [[fallthrough]];
-			case tool_e::line_dashed:
-				//drag_mode = QGraphicsView::RubberBandDrag;
-				break;
-		}
-
-		setDragMode( drag_mode );
-
 		m_painter.set_tool( tool );
 	}
 
 protected:
 
-	QGraphicsView::DragMode	m_prev_drag_mode = QGraphicsView::NoDrag;
-
 	// Keyboard events...
 	void keyPressEvent( QKeyEvent * p_event ) override {
-		//QGraphicsView::keyPressEvent( p_event ); // Forward to base
 
-		if ( m_focus ) {
-			int offset = p_event->modifiers() & Qt::ShiftModifier ? 10 : 1;
-			switch ( p_event->key() /*int*/ ) {
-				case Qt::Key_Up:	m_focus->moveBy(       0, -offset ); break;
-				case Qt::Key_Left:	m_focus->moveBy( -offset,       0 ); break;
-				case Qt::Key_Right:	m_focus->moveBy(  offset,       0 ); break;
-				case Qt::Key_Down:	m_focus->moveBy(       0,  offset ); break;
-			}
-		}
-
-		// Enable ScrollHandDrag if Ctrl pressed
+		// Modify item's properties if Ctrl pressed...
 		if ( p_event->modifiers() & Qt::ControlModifier ) {
-			m_prev_drag_mode = dragMode();
 			setDragMode( QGraphicsView::ScrollHandDrag );
+
+			if ( m_focus ) {
+
+				// All items...
+				int modifier_value = p_event->modifiers() & Qt::ShiftModifier ? 10 : 1;
+				switch ( p_event->key() ) {
+
+					// Position...
+					case Qt::Key_Up:	m_focus->moveBy(               0, -modifier_value ); break;
+					case Qt::Key_Left:	m_focus->moveBy( -modifier_value,               0 ); break;
+					case Qt::Key_Right:	m_focus->moveBy(  modifier_value,               0 ); break;
+					case Qt::Key_Down:	m_focus->moveBy(               0,  modifier_value ); break;
+				}
+
+				// Text...
+				if ( m_focus->type() == QGraphicsTextItem::Type ) {
+					items::text * p_text = qgraphicsitem_cast<items::text *>( m_focus );
+					Q_ASSERT( p_text );
+					switch ( p_event->key() ) {
+
+						// Size...
+						case Qt::Key_Minus:	p_text->change_size_by( -modifier_value ); break;
+						case Qt::Key_Plus:	p_text->change_size_by(  modifier_value ); break;
+					}
+				}
+
+			}
+		} else {
+			QGraphicsView::keyPressEvent( p_event ); // Forward to base
 		}
 	}
 
 	void keyReleaseEvent( QKeyEvent * p_event ) override {
-		//QGraphicsView::keyReleaseEvent( p_event ); // Forward to base
-
 		// Disable ScrollHandDrag if Ctrl unpressed
 		if ( ~(p_event->modifiers() & Qt::ControlModifier) ) {
-			setDragMode( m_prev_drag_mode );
+			setDragMode( QGraphicsView::NoDrag );
 		}
+
+		QGraphicsView::keyReleaseEvent( p_event ); // Forward to base
 	}
 
 
@@ -129,51 +124,15 @@ protected:
 		}
 	}
 
-#if 0
 	void mouseReleaseEvent( QMouseEvent * p_event ) override {
 		QGraphicsView::mouseReleaseEvent( p_event ); // Forward to base
 		m_painter.mouse_release_event( p_event );
 	}
-#endif
 
 	void mouseMoveEvent( QMouseEvent * p_event ) override {
 		QGraphicsView::mouseMoveEvent( p_event ); // Forward to base
 		m_painter.mouse_move_event( p_event );
 	}
-
-#if 0
-	void paintEvent( QPaintEvent * p_event ) override {
-		QGraphicsView::paintEvent( p_event ); // Forward to base
-
-		if ( m_focus ) {
-			QPointF pos = m_focus->pos();
-
-			if ( m_focus->type() == QGraphicsLineItem::Type ) {
-
-				QGraphicsLineItem * p_line = qgraphicsitem_cast<QGraphicsLineItem *>( m_focus );
-
-				QPointF p1 = pos + p_line->line().p1();
-				QPointF p2 = pos + p_line->line().p2();
-
-				qreal r = 5.5f;
-				QPainter painter( viewport() );
-				painter.setRenderHint( QPainter::Antialiasing );
-				painter.setPen( QColor( 255, 0, 0, 127 ) );
-				painter.setBrush( QBrush( QColor( 0, 255, 0, 64 ) ) );
-				painter.drawEllipse( QPointF( mapFromScene( p1 ) ), r, r );
-				painter.drawEllipse( QPointF( mapFromScene( p2 ) ), r, r );
-			}
-		}
-
-		//qDebug() << "*";
-	}
-#endif
-
-#if 0
-	void scrollContentsBy( int dx, int dy ) override {
-		QGraphicsView::scrollContentsBy( dx, dy ); // Forward to base
-	}
-#endif
 }; // class view
 
 } // namespace vd

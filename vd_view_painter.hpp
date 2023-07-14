@@ -1,5 +1,7 @@
 ﻿#pragma once
+
 const int step=30;
+
 namespace vd {
 
 enum class tool_e { none, edit, line_solid, line_dashed, text, size, remove };
@@ -8,6 +10,7 @@ class painter {
 	QGraphicsView *	m_view;
 	QGraphicsItem *	m_item	= nullptr; // Currently painting item
 	tool_e			m_tool	= tool_e::none;
+
 	bool first;
 	QPointF lastmouseCoord;
 
@@ -16,7 +19,7 @@ public:
 
 	void set_tool( tool_e tool ) {
 		m_tool = tool;
-		if ( m_item ) {
+		if ( m_item ) { // If item is not drawn completely, remove it
 			qDebug() << __FUNCTION__ << "set_tool(): m_item != nullptr";
 			m_view->scene()->removeItem( m_item );
 			m_item = nullptr;
@@ -26,7 +29,7 @@ public:
 std::optional<QPointF> GetNearXYOBJECT(double x0, double y0, double x1, double y1){
 		enum loc {up =0 ,down =1,right=2 ,left =3} ;
 		loc location;
-	QList<QGraphicsItem *> itemList = m_view->items();
+		QList<QGraphicsItem *> itemList = m_view->items();
 						if (x1<lastmouseCoord.x()) location = left; 
 				   else if (x1>lastmouseCoord.x()) location = right; 
 				   else if (y1<lastmouseCoord.y()) location = up; 
@@ -37,7 +40,7 @@ std::optional<QPointF> GetNearXYOBJECT(double x0, double y0, double x1, double y
 							y1 = y0; 
 							double xResult=x1, yResult=y1;
 
-int sz=itemList.size();
+		int sz=itemList.size();
 		for (qsizetype i = 1; i < sz; i++) { 
 							QGraphicsItem* item=itemList.at(i);
 							qDebug() <<"line(" << i;
@@ -52,11 +55,9 @@ int sz=itemList.size();
 			}
 
 			
-}
+		}
 			return {QPointF(xResult,yResult)};
 		}
-
-
 
 	void mouse_press_event( QMouseEvent * p_event ) {
 		QPointF	pt	= m_view->mapToScene( p_event->pos() );
@@ -68,7 +69,7 @@ int sz=itemList.size();
 
 				if ( m_tool == tool_e::line_dashed ) {
 					pen = QPen( Qt::DashLine );
-				}                                        	
+				}
 
 				if ( !m_item ) {
 					// First mouse pressing
@@ -82,9 +83,14 @@ int sz=itemList.size();
 					m_item = nullptr;
 				}
 				break;
+
+			case tool_e::text:
+				m_view->scene()->addItem( new items::text( pt ) );
+				break;
 		}
 	}
 
+	void mouse_release_event( QMouseEvent * p_event ) {}
 
 	void mouse_move_event( QMouseEvent * p_event ) {
 
@@ -115,7 +121,7 @@ int sz=itemList.size();
 				} break;
 			}
 		}
-	lastmouseCoord.setX(m_view->mapToScene( p_event->pos() ).x());  lastmouseCoord.setY(m_view->mapToScene( p_event->pos() ).y());
+		lastmouseCoord.setX(m_view->mapToScene( p_event->pos() ).x());  lastmouseCoord.setY(m_view->mapToScene( p_event->pos() ).y());
 	}
 }; // class painter
 
