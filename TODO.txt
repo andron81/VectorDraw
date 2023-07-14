@@ -1,0 +1,4 @@
+﻿
+ * Add:
+    /images/edit_undo.png
+    /images/edit_redo.png icons.
