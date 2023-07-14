@@ -2,3 +2,5 @@
  * Add:
     /images/edit_undo.png
     /images/edit_redo.png icons.
+
+ * Show control hints to status bar for item currently focused.
