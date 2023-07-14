@@ -1,16 +1,15 @@
 #pragma once
 
 #include "VectorDraw_pch.hpp"
+#include "vd_util.hpp"
 #include "vd_settings.hpp"
 #include "vd_menu_bar.hpp"
-
 #include "vd_items.hpp"
-#include "vd_view_painter.hpp"	// tool_e
 #include "vd_view_canvas.hpp"
+#include "vd_view_painter.hpp"	// tool_e
 #include "vd_view.hpp"
 #include "vd_layout.hpp"
 
-#include "vd_util.hpp"
 
 // All classes that contain signals or slots must mention Q_OBJECT at the top of their declaration. They must also derive (directly or indirectly) from QObject.
 class MainWindow : public QMainWindow {
@@ -101,7 +100,8 @@ private slots:
 	}
 
 	void act_save_image() {
-		vd::util::save_image( m_layout.get_view() );
+//		vd::util::save_image( m_layout.get_view() );
+		m_layout.get_view()->save_image();
 	}
 
 	void act_print() {
