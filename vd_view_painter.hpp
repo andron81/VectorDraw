@@ -4,9 +4,14 @@
 const int step=7;
 
 namespace vd {
+	
+
+
+	
 
 enum class tool_e { none, edit, line_solid, line_dashed, text, size, remove };
 enum loc {up =0 ,down =1,right=2 ,left =3,none=4} ;
+
 		
 class painter {
 	QGraphicsView *	m_view;
@@ -112,6 +117,9 @@ std::optional<QPointF> GetNearXYOBJECT(qreal x0, qreal y0, qreal x1, qreal y1){
 					// Leave the item in scene as it is
 					m_item = nullptr;
 				}
+				break;
+				case tool_e::text:
+				m_view->scene()->addItem( new items::text( pt ) );
 				break;
 		}
 	}
