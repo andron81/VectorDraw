@@ -1,6 +1,7 @@
 _*
 *.log
 *.ini
+*.pdf
 z.cmd
 
 # VS
