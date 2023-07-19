@@ -3,15 +3,17 @@
 namespace vd {
 
 class view : public QGraphicsView {
-	const int			m_scale_factor_min	= 1;
-	const int			m_scale_factor_max	= 200;
-	const int			m_scale_factor_div	= 10;
-	int					m_scale_factor		= m_scale_factor_div;
+	const int			m_scale_factor_min		= 1;
+	const int			m_scale_factor_max		= 200;
+	const int			m_scale_factor_div		= 10;
+	int					m_scale_factor			= m_scale_factor_div;
 
 	vd::view_canvas *	m_canvas;
 	painter				m_painter;
 
-	QGraphicsItem *		m_focus				= nullptr;	// Focused item
+	QGraphicsItem *		m_focus					= nullptr;	// Focused item
+	QPen				m_focus_line_pen_prev	= Qt::NoPen;
+	QPen				m_focus_line_pen		= QColor( 0, 255, 0 );
 
 	void update_zoom() {
 		QTransform tform;
@@ -37,7 +39,24 @@ public:
 		connect( scene(), &QGraphicsScene::focusItemChanged, this,
 			[&]( QGraphicsItem * p_new, QGraphicsItem * p_old, Qt::FocusReason reason ) {
 				qDebug() << "new: " << p_new << ", old: " << p_old;
+
+				// Restore unfocused line pen...
+				if ( p_old && p_old->type() == QGraphicsLineItem::Type ) {
+					QGraphicsLineItem * p_line = qgraphicsitem_cast<QGraphicsLineItem *>( p_old );
+					Q_ASSERT( p_line && m_focus_line_pen_prev != Qt::NoPen );
+					p_line->setPen( m_focus_line_pen_prev );
+				}
+
+				// Set focused line pen for contrast...
+				if ( p_new && p_new->type() == QGraphicsLineItem::Type ) {
+					QGraphicsLineItem * p_line = qgraphicsitem_cast<QGraphicsLineItem *>( p_new );
+					Q_ASSERT( p_line );
+					m_focus_line_pen_prev = p_line->pen();
+					p_line->setPen( m_focus_line_pen );
+				}
+
 				m_focus = p_new;
+
 			} );
 
 		update_zoom();
