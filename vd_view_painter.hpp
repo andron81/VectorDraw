@@ -1,18 +1,12 @@
 ﻿#pragma once
 
-
-const int step=7;
+const int step = 7;
 
 namespace vd {
-	
-
-
-	
 
 enum class tool_e { none, edit, line_solid, line_dashed, text, size, remove };
-enum loc {up =0 ,down =1,right=2 ,left =3,none=4} ;
+enum loc { up = 0, down = 1, right = 2, left = 3, none = 4 };
 
-		
 class painter {
 	QGraphicsView *	m_view;
 	QGraphicsItem *	m_item	= nullptr; // Currently painting item
@@ -38,7 +32,7 @@ public:
 		}
 	}
 
-	std::optional<QPointF> GetNearXYOBJECT(qreal x0, qreal y0, qreal x1, qreal y1){
+	std::optional<QPointF> GetNearXYOBJECT(qreal x0, qreal y0, qreal x1, qreal y1) {
 
 		loc mouseLocation;
 		bool loca;
@@ -119,16 +113,17 @@ public:
 				break;
 		}
 	}
+
 	void mouse_release_event( QMouseEvent * p_event ) {}
 
 	void mouse_move_event( QMouseEvent * p_event ) {
 
 		if (!first) {
-                          first=true;
+			first=true;
+			lastmouseCoord.setX(m_view->mapToScene( p_event->pos() ).x());
+			lastmouseCoord.setY(m_view->mapToScene( p_event->pos() ).y());
+		}
 
-		lastmouseCoord.setX(m_view->mapToScene( p_event->pos() ).x());  
-		lastmouseCoord.setY(m_view->mapToScene( p_event->pos() ).y());
-				     }		
 		if ( m_item ) {
 			switch ( m_tool ) {
 				case tool_e::line_solid: [[fallthrough]];
@@ -139,14 +134,17 @@ public:
 					qreal yFirstPoint = p->line().y1();
 					qreal xSecondPoint = secondPoint.x();
 					qreal ySecondPoint = secondPoint.y();
+
 					std::optional<QPointF> Coord = GetNearXYOBJECT(xFirstPoint, yFirstPoint,xSecondPoint,ySecondPoint);
-					if (Coord) 						
+					if (Coord)
 						secondPoint.setX(Coord->x());secondPoint.setY(Coord->y());
 							p->setLine( QLineF( p->line().p1(), secondPoint ) );
+
 				} break;
 			}
 		}
-	lastmouseCoord.setX(m_view->mapToScene( p_event->pos() ).x());  lastmouseCoord.setY(m_view->mapToScene( p_event->pos() ).y());
+
+		lastmouseCoord.setX(m_view->mapToScene( p_event->pos() ).x());  lastmouseCoord.setY(m_view->mapToScene( p_event->pos() ).y());
 	}
 }; // class painter
 
