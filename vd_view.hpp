@@ -80,6 +80,12 @@ protected:
 	// Keyboard events...
 	void keyPressEvent( QKeyEvent * p_event ) override {
 
+		// Remove item by "Delete" key...
+		if ( m_focus && p_event->key() == Qt::Key_Delete ) {
+			scene()->removeItem( m_focus );
+			m_focus = nullptr;
+		}
+
 		// Modify item's properties if Ctrl pressed...
 		if ( p_event->modifiers() & Qt::ControlModifier ) {
 			setDragMode( QGraphicsView::ScrollHandDrag );
