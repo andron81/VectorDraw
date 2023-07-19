@@ -17,8 +17,9 @@ class painter {
 	QGraphicsView *	m_view;
 	QGraphicsItem *	m_item	= nullptr; // Currently painting item
 	tool_e			m_tool	= tool_e::none;
-	bool first;
-	QPointF lastmouseCoord;
+
+	bool			first;
+	QPointF			lastmouseCoord;
 
 //del later:
 		QPen	penKr	= QPen( QColor(0, 0, 255, 127) ); // 
@@ -30,16 +31,14 @@ public:
 
 	void set_tool( tool_e tool ) {
 		m_tool = tool;
-		if ( m_item ) {
+		if ( m_item ) { // If item is not drawn completely, remove it
 			qDebug() << __FUNCTION__ << "set_tool(): m_item != nullptr";
 			m_view->scene()->removeItem( m_item );
 			m_item = nullptr;
 		}
 	}
-	
 
-
-std::optional<QPointF> GetNearXYOBJECT(qreal x0, qreal y0, qreal x1, qreal y1){
+	std::optional<QPointF> GetNearXYOBJECT(qreal x0, qreal y0, qreal x1, qreal y1){
 
 		loc mouseLocation;
 		bool loca;
@@ -85,14 +84,11 @@ std::optional<QPointF> GetNearXYOBJECT(qreal x0, qreal y0, qreal x1, qreal y1){
 					tmpLineOld=tmpLine; tmpLine->setPen(penKr); 
 					yResult = tmpLine->line().y1(); break;}
 					}
-}
+		}
 				if (!(xResult==x0 || yResult==y0))  {xResult= x1; yResult= y1;}
 
-			
 				return QPointF(xResult,yResult);
-}		
-
-
+	}
 
 	void mouse_press_event( QMouseEvent * p_event ) {
 		QPointF	pt	= m_view->mapToScene( p_event->pos() );
@@ -104,7 +100,7 @@ std::optional<QPointF> GetNearXYOBJECT(qreal x0, qreal y0, qreal x1, qreal y1){
 
 				if ( m_tool == tool_e::line_dashed ) {
 					pen = QPen( Qt::DashLine );
-				}                                        	
+				}
 
 				if ( !m_item ) {
 					// First mouse pressing
