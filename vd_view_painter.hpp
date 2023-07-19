@@ -11,18 +11,12 @@ class painter {
 	QGraphicsView *	m_view;
 	QGraphicsItem *	m_item	= nullptr; // Currently painting item
 	tool_e			m_tool	= tool_e::none;
-
+	items::size  * sz_itm = nullptr;
 	bool			first;
 	QPointF			lastmouseCoord;
 
-//del later:
-		QPen	penKr	= QPen( QColor(0, 0, 255, 127) ); // 
-		QPen	penDef	= QPen( Qt::SolidLine ); // Default pen
-		QGraphicsLineItem * tmpLineOld=0;
-
 public:
 	painter( QGraphicsView * p_view ) : m_view( p_view ), first(false){ Q_ASSERT( m_view ); }
-
 	void set_tool( tool_e tool ) {
 		m_tool = tool;
 		if ( m_item ) { // If item is not drawn completely, remove it
@@ -32,33 +26,28 @@ public:
 		}
 	}
 
-	std::optional<QPointF> GetNearXYOBJECT(qreal x0, qreal y0, qreal x1, qreal y1) {
+	QPointF GetNearXYOBJECT(qreal x0, qreal y0, qreal x1, qreal y1) {
 
-		loc mouseLocation;
-		bool loca;
+		bool loca; //location of line (vert or hori)
 		QList<QGraphicsItem *> itemList = m_view->items();
-		int sz=itemList.size();
-		
+		int sz=itemList.size();		
 		if (abs(x0-x1) < abs(y0 - y1)) {x1 = x0; loca=true; }
 			else {y1 = y0; loca=false; }		
 		qreal xResult=x1, yResult=y1;
 		for (qsizetype i = 1; i < sz; i++) { 
 			QGraphicsItem* item=itemList.at(i);							
 			if (item->type()==6) {				
-				QGraphicsLineItem * tmpLine = static_cast<QGraphicsLineItem *>( item );
-				if (tmpLineOld!=0) tmpLineOld->setPen(penDef); 
+				QGraphicsLineItem * tmpLine = static_cast<QGraphicsLineItem *>( item );				
 				if (x1+step >=tmpLine->line().x1() && x1<=tmpLine->line().x1() && !loca && (tmpLine->line().x1()==tmpLine->line().x2() ) 
 					&& y1>=std::min(tmpLine->line().y1(),tmpLine->line().y2())
 					&& y1<=std::max(tmpLine->line().y1(),tmpLine->line().y2())  )  
-					{
-					tmpLineOld=tmpLine;  tmpLine->setPen(penKr); 					
+					{					
 					xResult = tmpLine->line().x1(); break;
 					} else
 				if (x1-step <=tmpLine->line().x1() && x1>=tmpLine->line().x1() && !loca && (tmpLine->line().x1()==tmpLine->line().x2() ) 
 					&& y1>=std::min(tmpLine->line().y1(),tmpLine->line().y2()) 
 					&& y1<=std::max(tmpLine->line().y1(),tmpLine->line().y2()))  
-					{
-					tmpLineOld=tmpLine; tmpLine->setPen(penKr); 
+					{					
 					xResult = tmpLine->line().x1(); break;
 					} 
 					else
@@ -66,8 +55,7 @@ public:
 					&& x1>=std::min(tmpLine->line().x1(),tmpLine->line().x2())
 					&& x1<=std::max(tmpLine->line().x1(),tmpLine->line().x2()) 
 					)  
-					{
-					tmpLineOld=tmpLine; tmpLine->setPen(penKr); 
+					{					
 					yResult = tmpLine->line().y1();break;
 					} 
 					else
@@ -75,26 +63,24 @@ public:
 					   x1>=std::min(tmpLine->line().x1(),tmpLine->line().x2())
 					&& x1<=std::max(tmpLine->line().x1(),tmpLine->line().x2()))  
 					{
-					tmpLineOld=tmpLine; tmpLine->setPen(penKr); 
+					
 					yResult = tmpLine->line().y1(); break;}
 					}
-		}
+				} //for
 				if (!(xResult==x0 || yResult==y0))  {xResult= x1; yResult= y1;}
-
 				return QPointF(xResult,yResult);
-	}
+		}
 
 	void mouse_press_event( QMouseEvent * p_event ) {
+
 		QPointF	pt	= m_view->mapToScene( p_event->pos() );
 		QPen	pen	= QPen( Qt::SolidLine ); // Default pen
-
 		switch ( m_tool ) {
 			case tool_e::line_solid: [[fallthrough]];
-			case tool_e::line_dashed:
-
+			case tool_e::line_dashed:					
 				if ( m_tool == tool_e::line_dashed ) {
 					pen = QPen( Qt::DashLine );
-				}
+				}                                        	
 
 				if ( !m_item ) {
 					// First mouse pressing
@@ -108,8 +94,22 @@ public:
 					m_item = nullptr;
 				}
 				break;
-				case tool_e::text:
+			case tool_e::text:
 				m_view->scene()->addItem( new items::text( pt ) );
+				break;
+			case tool_e::size: 
+					qDebug() << "size!";
+				if (!sz_itm){// First mouse clicked for create tool "Size"				
+					sz_itm = new items::size(pt.x(),pt.y());
+					m_view->scene()->addItem(sz_itm);
+				}	
+				else {		//Second mouse clicked
+					sz_itm->setX2(pt.x());
+					sz_itm->setY2(pt.y());	
+					sz_itm->setqtyofPoint(2);
+					sz_itm->update();
+				}	
+				
 				break;
 		}
 	}
@@ -134,12 +134,9 @@ public:
 					qreal yFirstPoint = p->line().y1();
 					qreal xSecondPoint = secondPoint.x();
 					qreal ySecondPoint = secondPoint.y();
-
-					std::optional<QPointF> Coord = GetNearXYOBJECT(xFirstPoint, yFirstPoint,xSecondPoint,ySecondPoint);
-					if (Coord)
-						secondPoint.setX(Coord->x());secondPoint.setY(Coord->y());
+					QPointF Coord = GetNearXYOBJECT(xFirstPoint, yFirstPoint,xSecondPoint,ySecondPoint);
+						secondPoint.setX(Coord.x());secondPoint.setY(Coord.y());					
 							p->setLine( QLineF( p->line().p1(), secondPoint ) );
-
 				} break;
 			}
 		}
