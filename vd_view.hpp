@@ -55,11 +55,12 @@ public:
 		m_painter.set_tool( tool );
 	}
 
-	void save_image() {
+	void save_to_vdf( const QString & filename ) {
+		// JSON, XML, CBOR?
+		// ... TODO ...
+	}
 
-		QString filename = QFileDialog::getSaveFileName( nullptr, "Сохранить", ".", "Изображения (*.png *.jpg)" );
-		if ( filename.isEmpty() ) return;
-
+	void save_to_image( const QString & filename ) {
 		QSize  canvas_sz( m_canvas->get_size() );
 		QPoint canvas_pt( mapFromScene( m_canvas->get_top_left() ) );
 
@@ -74,6 +75,12 @@ public:
 		render( &painter, QRectF() /*target*/, QRect( canvas_pt, canvas_sz ) /*source*/ );
 
 		file.save( filename );
+	}
+
+	void print() {
+		QPrinter printer( QPrinter::HighResolution );
+		QPainter painter( &printer );
+		scene()->render( &painter );
 	}
 
 protected:

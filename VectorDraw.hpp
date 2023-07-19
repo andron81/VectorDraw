@@ -25,6 +25,8 @@ class MainWindow : public QMainWindow {
 	QAction *		m_undo_action	= nullptr;
 	QAction *		m_redo_action	= nullptr;
 
+	QString			m_filename;
+
 protected:
 	void closeEvent( QCloseEvent * /*p_event*/ ) override {
 		m_settings.save();
@@ -54,7 +56,8 @@ public:
 		// Create menu bar...
 		m_menu_bar.add( this, "&Файл"
 			, "&Новый",				&MainWindow::act_new
-			, "&Сохранить как ...",	&MainWindow::act_save_image
+			, "&Сохранить",			&MainWindow::act_save
+			, "&Сохранить как ...",	&MainWindow::act_save_as
 			, "&Печать",			&MainWindow::act_print
 			, nullptr, []{}	// separator
 			, "Вы&ход",				&MainWindow::close
@@ -94,19 +97,38 @@ public:
 		//undoStack->push(new MoveCommand(movedItem, oldPosition));
 	}
 
-private slots:
-	void act_new() const {
-		qDebug() << __FUNCTION__;
+	void update_title() {
+		setWindowTitle( "Vector Draw - " + m_filename );
 	}
 
-	void act_save_image() {
-//		vd::util::save_image( m_layout.get_view() );
-		m_layout.get_view()->save_image();
+private slots:
+	void act_new() {
+		qDebug() << __FUNCTION__;
+		m_filename.clear();
+		update_title();
+
+		// TOOD:
+		//  * check for scene changes, save if needed
+		//  * clear scene
+	}
+
+	void act_save() {
+		if ( m_filename.isEmpty() ) {
+			QString filename = QFileDialog::getSaveFileName( nullptr, "Сохранить", ".", "Vector Draw file (*.vdf)" );
+			if ( filename.isEmpty() ) return;
+			m_filename = filename;
+			update_title();
+		}
+		m_layout.get_view()->save_to_vdf( m_filename );
+	}
+
+	void act_save_as() {
+		QString filename = QFileDialog::getSaveFileName( nullptr, "Сохранить как...", ".", "Изображения (*.png *.jpg)" );
+		if ( filename.isEmpty() ) return;
+		m_layout.get_view()->save_to_image( filename );
 	}
 
 	void act_print() {
-		QPrinter printer( QPrinter::HighResolution );
-		QPainter painter( &printer );
-		m_layout.get_scene()->render( &painter );
+		m_layout.get_view()->print();
 	}
 }; // class MainWindow
