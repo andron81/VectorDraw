@@ -93,12 +93,9 @@ public:
 			switch ( p->type() ) {
 				//QGraphicsLineItem * p_line = qgraphicsitem_cast<QGraphicsLineItem *>( p_old );
 
-				// QGraphicsTextItem::Type
-				//case items::e_type_text: {
 				case items::text::Type: {
-					//QGraphicsTextItem * p_text = qgraphicsitem_cast<QGraphicsTextItem *>( p );
 					const items::text * p_text = qgraphicsitem_cast<const items::text *>( p );
-					json["text"] = p_text->to_JSON();
+					json["i_text"] = p_text->to_JSON();
 				} break;
 
 				default:
