@@ -32,5 +32,8 @@
 #include <QStyleOptionGraphicsItem>
 #include <QGraphicsDropShadowEffect>
 
+#include <QJsonObject>
+#include <QJsonDocument>
+
 #include <QWheelEvent>
 #include <QIntValidator>

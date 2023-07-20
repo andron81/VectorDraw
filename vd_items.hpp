@@ -2,8 +2,20 @@
 
 namespace vd::items {
 
-class text final : public QGraphicsTextItem {
+enum types { e_type_line_solid = QGraphicsItem::UserType + 1, e_type_line_dashed, e_type_text, e_type_size };
+
+struct item_base {
+	virtual QJsonObject to_JSON() const = 0;
+}; // class item
+
+
+class text final : public item_base, public QGraphicsTextItem {
 public:
+	enum { Type = types::e_type_text };
+
+	// Enable the use of qgraphicsitem_cast with this item.
+	int type() const override { return Type; }
+
 	text( const QPointF & pos ) {
 		setPos( pos );
 		setFont( QFont( "Times", 72/*, QFont::Bold*/ ) );
@@ -18,15 +30,29 @@ public:
 		f.setPointSize( f.pointSize() + points );
 		setFont( f );
 	}
+
+	QJsonObject to_JSON() const {
+		QJsonObject json;
+
+		// TODO: add font size and face
+		//QFont font() const
+
+		QPointF pos = QGraphicsTextItem::pos();
+		json["pos_x"] = pos.x();
+		json["pos_y"] = pos.y();
+		json["text"] = QGraphicsTextItem::toPlainText();
+		return json;
+	}
 }; // class text
 
 
-class size : public QGraphicsItem{
+class size : public item_base, public QGraphicsItem {
 	qint8 qtyofpointSet ; //quantity of set points 1,2 or 3
 	qreal x1, y1; //first point  
 	qreal x2, y2; //second point
 	qreal L; // user space length		
-	public:
+
+public:
 	size (qreal _x1, qreal _y1): x1(_x1), y1(_y1),qtyofpointSet(1){}//qtyofpointSet = 1 immediately
     	QRectF boundingRect() const override{        
 	        return QRectF(0, 0,0,0);
@@ -49,7 +75,12 @@ class size : public QGraphicsItem{
 			break;
 		}			
     }
-};
 
+	QJsonObject to_JSON() const {
+		QJsonObject json;
+		qDebug() << __FUNCTION__ << ": not implemented yet.";
+		return json;
+	}
+};
 
 } // namespace vd::items

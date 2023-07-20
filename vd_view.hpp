@@ -40,6 +40,7 @@ public:
 			[&]( QGraphicsItem * p_new, QGraphicsItem * p_old, Qt::FocusReason reason ) {
 				qDebug() << "new: " << p_new << ", old: " << p_old;
 
+				// Looks ugly, should be improved in future...
 				// Restore unfocused line pen...
 				if ( p_old && p_old->type() == QGraphicsLineItem::Type ) {
 					QGraphicsLineItem * p_line = qgraphicsitem_cast<QGraphicsLineItem *>( p_old );
@@ -74,9 +75,43 @@ public:
 		m_painter.set_tool( tool );
 	}
 
-	void save_to_vdf( const QString & filename ) {
-		// JSON, XML, CBOR?
-		// ... TODO ...
+	void save_to_vdf( const QString & filename ) const {
+
+		QFile file( filename );
+		if ( !file.open( QIODevice::WriteOnly ) ) {
+			qWarning( "Couldn't open save file." );
+			return;
+		}
+
+		QList <QGraphicsItem *> l_items = QGraphicsView::items();
+
+		QJsonObject json;
+		json["items"] = l_items.size() - 1; // -1 to remove canvas
+
+
+		for ( const QGraphicsItem * p : l_items ) {
+			switch ( p->type() ) {
+				//QGraphicsLineItem * p_line = qgraphicsitem_cast<QGraphicsLineItem *>( p_old );
+
+				// QGraphicsTextItem::Type
+				//case items::e_type_text: {
+				case items::text::Type: {
+					//QGraphicsTextItem * p_text = qgraphicsitem_cast<QGraphicsTextItem *>( p );
+					const items::text * p_text = qgraphicsitem_cast<const items::text *>( p );
+					json["text"] = p_text->to_JSON();
+				} break;
+
+				default:
+					qDebug() << __FUNCTION__ << ": unknown item type " << p->type();
+					break;
+			}
+		}
+
+		// JSON
+		file.write( QJsonDocument( json ).toJson() );
+
+		// CBOR
+		//file.write( QCborValue::fromJsonValue( json ).toCbor() );
 	}
 
 	void save_to_image( const QString & filename ) {
