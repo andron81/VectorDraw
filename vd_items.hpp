@@ -2,16 +2,17 @@
 
 namespace vd::items {
 
-enum types { e_type_line_solid = QGraphicsItem::UserType + 1, e_type_line_dashed, e_type_text, e_type_size };
+enum types { e_line_solid = QGraphicsItem::UserType + 1, e_line_dashed, e_text, e_size };
 
 struct item_base {
+	virtual int type() const = 0;
 	virtual QJsonObject to_JSON() const = 0;
 }; // class item
 
 
 class text final : public item_base, public QGraphicsTextItem {
 public:
-	enum { Type = types::e_type_text };
+	enum { Type = types::e_text };
 
 	// Enable the use of qgraphicsitem_cast with this item.
 	int type() const override { return Type; }
@@ -53,6 +54,10 @@ class size : public item_base, public QGraphicsItem {
 	qreal L; // user space length		
 
 public:
+	enum { Type = types::e_size };
+
+	int type() const override { return Type; }
+
 	size (qreal _x1, qreal _y1): x1(_x1), y1(_y1),qtyofpointSet(1){}//qtyofpointSet = 1 immediately
     	QRectF boundingRect() const override{        
 	        return QRectF(0, 0,0,0);
