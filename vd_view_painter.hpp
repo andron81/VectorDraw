@@ -39,40 +39,45 @@ public:
 			if (item->type()==6) {							
 				QGraphicsLineItem * tmpLine = static_cast<QGraphicsLineItem *>( item );				
 				//qDebug() << "line #"<< i << tmpLine->line().x1()+item->pos().x()<< "x"<<tmpLine->line().y1()+item->pos().y() <<","<< tmpLine->line().x2()+item->pos().x()<< "x"<<tmpLine->line().y2()+item->pos().y();
-				qreal aftermoveX = item->pos().x(); //x after move
-				qreal aftermoveY = item->pos().y(); //y --""--
-				qreal linecoordX1=tmpLine->line().x1()+aftermoveX; //real coord x1 of line
-				qreal linecoordY1=tmpLine->line().y1()+aftermoveY; //real coord y1 of line			
-				qreal linecoordX2=tmpLine->line().x2()+aftermoveX; //real coord x2 of line
-				qreal linecoordY2=tmpLine->line().y2()+aftermoveY; //real coord y2 of line			
+		
+				QLineF linecoord = tmpLine->line();
+				linecoord.setP1(linecoord.p1() +item->pos());
+				linecoord.setP2(linecoord.p2() +item->pos());
+				qreal minX = std::min(linecoord.x1(),linecoord.x2());
+				qreal minY = std::min(linecoord.y1(),linecoord.y2());
+				qreal maxX = std::max(linecoord.x1(),linecoord.x2());
+				qreal maxY = std::max(linecoord.y1(),linecoord.y2());
 				
-				if (x1+step >=linecoordX1 && x1<=linecoordX1 && !loca && (linecoordX1==linecoordX2 ) 
-					&& y1>=std::min(linecoordY1,linecoordY2)
-					&& y1<=std::max(linecoordY1,linecoordY2)  )  
+				/*qDebug() << "line #"<< i << " "<< linecoordX1<< "x"<<linecoordY1 << " "<<linecoordX2<< "x"<<linecoordY2 << " "<<
+				linecoord.x1()<<"x"<<linecoord.y1()<<" "<<linecoord.x2()<<"x"<<linecoord.y2();*/
+				
+
+				if (x1+step >=linecoord.x1() && x1<=linecoord.x1() && !loca && (linecoord.x1()==linecoord.x2() ) 
+					&& y1>=minY
+					&& y1<=maxY  )  
 					{					
-					xResult = linecoordX1; break;
+					xResult = linecoord.x1(); break;
 					} else
-				if (x1-step <=linecoordX1 && x1>=linecoordX1 && !loca && (linecoordX1==linecoordX2) 
-					&& y1>=std::min(linecoordY1,linecoordY2) 
-					&& y1<=std::max(linecoordY1,linecoordY2))  
+				if (x1-step <=linecoord.x1() && x1>=linecoord.x1() && !loca && (linecoord.x1()==linecoord.x2()) 
+					&& y1>=minY
+					&& y1<=maxY)  
 					{					
-					xResult = linecoordX1; break;
+					xResult = linecoord.x1(); break;
 					} 
 					else
-				if (y1+step >=linecoordY1 && y1<=linecoordY1 && loca && (linecoordY1==linecoordY2)  
-					&& x1>=std::min(linecoordX1,linecoordX2)
-					&& x1<=std::max(linecoordX1,linecoordX2) 
-					)  
+				if (y1+step >=linecoord.y1() && y1<=linecoord.y1() && loca && (linecoord.y1()==linecoord.y2())  
+					&& x1>=minX
+					&& x1<=maxX) 
 					{					
-					yResult = linecoordY1;break;
+					yResult = linecoord.y1();break;
 					} 
 					else
-				if (y1-step <=linecoordY1 && y1>=linecoordY1 && loca && (linecoordY1==linecoordY2) 
-					&& x1>=std::min(linecoordX1,linecoordX2)
-					&& x1<=std::max(linecoordX1,linecoordX2))  
+				if (y1-step <=linecoord.y1() && y1>=linecoord.y1() && loca && (linecoord.y1()==linecoord.y2()) 
+					&& x1>=minX
+					&& x1<=maxX)  
 					{
 					
-					yResult = linecoordY1; break;}
+					yResult = linecoord.y1(); break;}
 					}
 				} //for
 				if (!(xResult==x0 || yResult==y0))  {xResult= x1; yResult= y1;}
