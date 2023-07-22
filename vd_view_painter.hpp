@@ -48,9 +48,6 @@ public:
 				qreal maxX = std::max(linecoord.x1(),linecoord.x2());
 				qreal maxY = std::max(linecoord.y1(),linecoord.y2());
 				
-				/*qDebug() << "line #"<< i << " "<< linecoordX1<< "x"<<linecoordY1 << " "<<linecoordX2<< "x"<<linecoordY2 << " "<<
-				linecoord.x1()<<"x"<<linecoord.y1()<<" "<<linecoord.x2()<<"x"<<linecoord.y2();*/
-				
 
 				if (x1+step >=linecoord.x1() && x1<=linecoord.x1() && !loca && (linecoord.x1()==linecoord.x2() ) 
 					&& y1>=minY
@@ -110,7 +107,8 @@ public:
 			case tool_e::text:
 				m_view->scene()->addItem( new items::text( pt ) );
 				break;
-			case tool_e::size: 
+			/*case tool_e::size: 
+			
 					qDebug() << "size!";
 				if (!sz_itm){// First mouse clicked for create tool "Size"				
 					sz_itm = new items::size(pt.x(),pt.y());
@@ -124,20 +122,32 @@ public:
 				}	
 				
 				break;
+			*/
 		}
 	}
 
 	void mouse_release_event( QMouseEvent * p_event ) {}
 
 	void mouse_move_event( QMouseEvent * p_event ) {
-
+		qreal mouseX = m_view->mapToScene( p_event->pos() ).x();
+		qreal mouseY = m_view->mapToScene( p_event->pos() ).y();
+		
 		if (!first) {
 			first=true;
-			lastmouseCoord.setX(m_view->mapToScene( p_event->pos() ).x());
-			lastmouseCoord.setY(m_view->mapToScene( p_event->pos() ).y());
+			lastmouseCoord.setX(mouseX);
+			lastmouseCoord.setY(mouseY);
 		}
-
+		
+		if (m_tool==tool_e::size)
+			if (!sz_itm) {
+				sz_itm = new items::size(mouseX,mouseY,m_view);
+				m_view->scene()->addItem(sz_itm);
+			} else {
+				QPointF coord=sz_itm->GetNearXYOBJECT(mouseX, mouseY);
+				sz_itm->setX1(coord.x());sz_itm->setY1(coord.y()); sz_itm->update(); }
+		
 		if ( m_item ) {
+
 			switch ( m_tool ) {
 				case tool_e::line_solid: [[fallthrough]];
 				case tool_e::line_dashed: {
@@ -154,7 +164,7 @@ public:
 			}
 		}
 
-		lastmouseCoord.setX(m_view->mapToScene( p_event->pos() ).x());  lastmouseCoord.setY(m_view->mapToScene( p_event->pos() ).y());
+		lastmouseCoord.setX(mouseX);  lastmouseCoord.setY(mouseY);
 	}
 }; // class painter
 
