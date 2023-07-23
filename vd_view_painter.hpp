@@ -82,7 +82,8 @@ public:
 		}
 
 	void mouse_press_event( QMouseEvent * p_event ) {
-
+		qreal mouseX = m_view->mapToScene( p_event->pos() ).x();
+		qreal mouseY = m_view->mapToScene( p_event->pos() ).y();
 		QPointF	pt	= m_view->mapToScene( p_event->pos() );
 		QPen	pen	= QPen( Qt::SolidLine ); // Default pen
 		switch ( m_tool ) {
@@ -107,22 +108,27 @@ public:
 			case tool_e::text:
 				m_view->scene()->addItem( new items::text( pt ) );
 				break;
-			/*case tool_e::size: 
+			case tool_e::size: 
 			
-					qDebug() << "size!";
-				if (!sz_itm){// First mouse clicked for create tool "Size"				
-					sz_itm = new items::size(pt.x(),pt.y());
-					m_view->scene()->addItem(sz_itm);
-				}	
-				else {		//Second mouse clicked
-					sz_itm->setX2(pt.x());
-					sz_itm->setY2(pt.y());	
-					sz_itm->setqtyofPoint(2);
-					sz_itm->update();
-				}	
+					
+				if (sz_itm){
+					switch 	(sz_itm->getMode()) {
+						case -1: qDebug() <<"set fisrt point of size"; sz_itm->setX2(mouseX);sz_itm->setY2(mouseY); sz_itm->setMode(1); 
+						break;
+						case  1: qDebug() <<"set second point of size"; sz_itm->setMode(2); 
+						break;
+						case  2:  sz_itm->setX2(mouseX);sz_itm->setY2(mouseY); sz_itm->setMode(3); 
+						break;
+
+						
+
+					}
+						sz_itm->update();
+					
+				}
 				
 				break;
-			*/
+			
 		}
 	}
 
@@ -143,8 +149,20 @@ public:
 				sz_itm = new items::size(mouseX,mouseY,m_view);
 				m_view->scene()->addItem(sz_itm);
 			} else {
-				QPointF coord=sz_itm->GetNearXYOBJECT(mouseX, mouseY);
-				sz_itm->setX1(coord.x());sz_itm->setY1(coord.y()); sz_itm->update(); }
+				if (sz_itm->getMode()==-1) {
+					QPointF coord=sz_itm->GetNearXYOBJECT(mouseX, mouseY);
+					sz_itm->setX1(coord.x());sz_itm->setY1(coord.y()); sz_itm->update(); 
+					} else 
+				if (sz_itm->getMode()==1) {
+					QPointF coord=sz_itm->GetNearXYOBJECT(mouseX, mouseY);
+					sz_itm->setX2(coord.x());sz_itm->setY2(coord.y()); sz_itm->update(); 
+					} else	
+				if (sz_itm->getMode()==2) {
+					QPointF coord=sz_itm->GetNearXYOBJECT(mouseX, mouseY);
+					//sz_itm->setX2(coord.x());sz_itm->setY2(coord.y());  
+					}	
+						sz_itm->update();
+				}
 		
 		if ( m_item ) {
 

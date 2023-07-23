@@ -63,8 +63,11 @@ public:
     	QRectF boundingRect() const override{        
 	        return QRectF(200, 200,800,800);
 	}
-	void setqtyofPoint(qint8 s) {
-		qtyofpointSet = s;
+	void setMode(qint8 s) {
+		mode = s;
+	}
+	qint8 getMode() {
+		return mode;
 	}
 	void setX2(qreal _x2) {x2=_x2;}
 	void setY2(qreal _y2) {y2=_y2;}
@@ -114,16 +117,55 @@ public:
 	
 	void paint(QPainter *painter, const QStyleOptionGraphicsItem *option,
         QWidget *widget) override{
-			qDebug() <<"asdfasdfs";
+			
 			
 		switch  ( mode ) {
 			case  -1:
 			
 				painter->drawEllipse(x1,y1,5,5);
+				
 			break;
-			case  2:	
+			case  1 : 	
 			painter->drawEllipse(x1,y1,5,5);
-			painter->drawEllipse(x2,y2,15,15);
+			painter->drawEllipse(x2,y2,5,5);
+			break;
+			case  2 : 
+			painter->drawEllipse(x1,y1,5,5);
+			painter->drawEllipse(x2,y2,5,5);
+			if (y1==y2) {
+				painter->drawLine(x1,y2+40,x1+10,y2+25);
+				painter->drawLine(x1,y2+40,x1+10,y2+50);
+				
+				painter->drawLine(x2,y2+40,x2-10,y2+25);
+				painter->drawLine(x2,y2+40,x2-10,y2+50);
+
+				painter->drawText(QPoint(x1+abs(x2-x1)/2,y1	+35),QString::number(abs(x2-x1)));
+				
+				
+				painter->drawLine(x1,y1+40,x2,y2+40);
+				painter->drawLine(x1,y1,x1,y2+40);
+				painter->drawLine(x2,y1,x2,y2+40);
+				}
+			if (x1==x2) {
+				painter->drawLine(x1+40,y1,x2+40,y2);
+				painter->drawLine(x1+40,y1,x1+25,y1+10);
+				painter->drawLine(x1+40,y1,x1+50,y1+10);
+				                                
+				painter->drawLine(x2+40,y2,x2+25,y2-10);
+				painter->drawLine(x2+40,y2,x2+50,y2-10);
+				painter->drawLine(x1,y1,x1+40,y1);
+				painter->drawLine(x1,y2,x2+40,y2);
+				painter->drawText(QPoint(x2+35,y1+abs(y2-y1)/2),QString::number(abs(y2-y1)));
+
+				
+				}
+			//painter->drawEllipse(x2,y2,15,15);
+			break;
+			case  3:
+			/*painter->drawEllipse(x1,y1,5,5);
+			painter->drawEllipse(x2,y2,5,5);*/
+			qDebug() <<"asdfasdfs";
+					//if (y1==y2) painter->drawLine(x1,y1+10,x2,y2+10);
 			break;
 		}
 		
