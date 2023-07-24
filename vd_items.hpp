@@ -49,17 +49,18 @@ public:
 
 class size : public item_base, public QGraphicsItem {
 	qint8 qtyofpointSet ; //quantity of set points 1,2 or 3
-	qint8 mode = -1 ; // 
-	qreal x1, y1; //first point  
-	qreal x2, y2; //second point
-	qreal L; // user space length		
+	qint8 mode  ; // 
+	qreal x1, y1; //#1  point  
+	qreal x2, y2; //#2 point
+	qreal x3, y3; //#3
+	
 	QGraphicsView *m_view;
 public:
 	enum { Type = types::e_size };
 
 	int type() const override { return Type; }
 
-	size (qreal _x1, qreal _y1, QGraphicsView * _m_view): x1(_x1), y1(_y1),mode(-1) ,m_view(_m_view) {}//qtyofpointSet = 1 immediately
+	size (qreal _x1, qreal _y1, QGraphicsView * _m_view): x1(_x1), y1(_y1),mode(0) ,m_view(_m_view) {}//qtyofpointSet = 1 immediately
     	QRectF boundingRect() const override{        
 	        return QRectF(200, 200,800,800);
 	}
@@ -73,8 +74,11 @@ public:
 	void setY2(qreal _y2) {y2=_y2;}
 	void setX1(qreal _x1) {x1=_x1;}
 	void setY1(qreal _y1) {y1=_y1;}
+	void setX3(qreal _x3) {x3=_x3;}
+	void setY3(qreal _y3) {y3=_y3;}
+	
 
-	void setL(qreal  _L)   {L=_L;}
+
 	
 	QPointF GetNearXYOBJECT(qreal xnow, qreal ynow) {
 				QList<QGraphicsItem *> itemList = m_view->items();
@@ -117,54 +121,59 @@ public:
 	
 	void paint(QPainter *painter, const QStyleOptionGraphicsItem *option,
         QWidget *widget) override{
-			
+			qDebug() <<"Repaint";
 			
 		switch  ( mode ) {
-			case  -1:
+			case  0:
 			
 				painter->drawEllipse(x1,y1,5,5);
 				
 			break;
-			case  1 : 	
+			case  1 : case  2 :	
 			painter->drawEllipse(x1,y1,5,5);
 			painter->drawEllipse(x2,y2,5,5);
 			break;
-			case  2 : 
+			case  3 : 
 			painter->drawEllipse(x1,y1,5,5);
-			painter->drawEllipse(x2,y2,5,5);
+			painter->drawEllipse(x2,y2,5,5);		
 			if (y1==y2) {
-				painter->drawLine(x1,y2+40,x1+10,y2+25);
-				painter->drawLine(x1,y2+40,x1+10,y2+50);
+				painter->drawLine(x1,y3,x1+10,y3+15);
+				painter->drawLine(x1,y3,x1+10,y3-15);
 				
-				painter->drawLine(x2,y2+40,x2-10,y2+25);
-				painter->drawLine(x2,y2+40,x2-10,y2+50);
-
-				painter->drawText(QPoint(x1+abs(x2-x1)/2,y1	+35),QString::number(abs(x2-x1)));
+				painter->drawLine(x2,y3,x2-10,y3+15);
+				painter->drawLine(x2,y3,x2-10,y3-15);
+				if (y3>y2)
+				painter->drawText(QPoint(x1+abs(x2-x1)/2,y3	+15),QString::number(abs(x2-x1)));
+				else 
+				painter->drawText(QPoint(x1+abs(x2-x1)/2,y3	-15),QString::number(abs(x2-x1)));
 				
+				painter->drawLine(x1,y3,x2,y3);
 				
-				painter->drawLine(x1,y1+40,x2,y2+40);
-				painter->drawLine(x1,y1,x1,y2+40);
-				painter->drawLine(x2,y1,x2,y2+40);
-				}
+				painter->drawLine(x1,y2,x1,y3);
+				painter->drawLine(x2,y2,x2,y3);
+				} else
 			if (x1==x2) {
-				painter->drawLine(x1+40,y1,x2+40,y2);
-				painter->drawLine(x1+40,y1,x1+25,y1+10);
-				painter->drawLine(x1+40,y1,x1+50,y1+10);
+				painter->drawLine(x3,y1,x3,y2);
+				painter->drawLine(x3,y1,x3+15,y1+10);
+				painter->drawLine(x3,y1,x3-15,y1+10);
 				                                
-				painter->drawLine(x2+40,y2,x2+25,y2-10);
-				painter->drawLine(x2+40,y2,x2+50,y2-10);
-				painter->drawLine(x1,y1,x1+40,y1);
-				painter->drawLine(x1,y2,x2+40,y2);
-				painter->drawText(QPoint(x2+35,y1+abs(y2-y1)/2),QString::number(abs(y2-y1)));
-
-				
-				}
+				painter->drawLine(x3,y2,x3+15,y2-10);
+				painter->drawLine(x3,y2,x3-15,y2-10);
+								
+				painter->drawLine(x1,y1,x3,y1);
+				painter->drawLine(x2,y2,x3,y2);
+				if (x3>x2)
+				painter->drawText(QPoint(x3+15,y1+abs(y2-y1)/2),QString::number(abs(y2-y1)));
+				else 
+					painter->drawText(QPoint(x3-25,y1+abs(y2-y1)/2),QString::number(abs(y2-y1)));
+				} 
+					
 			//painter->drawEllipse(x2,y2,15,15);
 			break;
-			case  3:
+			case  80:
 			/*painter->drawEllipse(x1,y1,5,5);
 			painter->drawEllipse(x2,y2,5,5);*/
-			qDebug() <<"asdfasdfs";
+			
 					//if (y1==y2) painter->drawLine(x1,y1+10,x2,y2+10);
 			break;
 		}

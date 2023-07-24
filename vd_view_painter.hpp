@@ -102,6 +102,7 @@ public:
 				} else {
 					// Second mouse pressing
 					// Leave the item in scene as it is
+					
 					m_item = nullptr;
 				}
 				break;
@@ -113,17 +114,22 @@ public:
 					
 				if (sz_itm){
 					switch 	(sz_itm->getMode()) {
-						case -1: qDebug() <<"set fisrt point of size"; sz_itm->setX2(mouseX);sz_itm->setY2(mouseY); sz_itm->setMode(1); 
+						case 0: qDebug() <<"set fisrt point of size"; sz_itm->setX2(mouseX);sz_itm->setY2(mouseY); sz_itm->setMode(1); 
 						break;
-						case  1: qDebug() <<"set second point of size"; sz_itm->setMode(2); 
+						case  1: qDebug() <<"set second point of size"; 
+							sz_itm->setX3(mouseX);sz_itm->setY3(mouseY); 
+						sz_itm->setMode(3); 
 						break;
-						case  2:  sz_itm->setX2(mouseX);sz_itm->setY2(mouseY); sz_itm->setMode(3); 
+						case  3: qDebug() << "click #2"; sz_itm->setX2(mouseX);sz_itm->setY2(mouseY); 				
+						//sz_itm->setX3(mouseX);sz_itm->setY3(mouseY); 
+						sz_itm->setMode(4); 
+						m_item = nullptr; 
 						break;
 
 						
 
 					}
-						sz_itm->update();
+						if (sz_itm->getMode()<3) sz_itm->update();
 					
 				}
 				
@@ -149,7 +155,8 @@ public:
 				sz_itm = new items::size(mouseX,mouseY,m_view);
 				m_view->scene()->addItem(sz_itm);
 			} else {
-				if (sz_itm->getMode()==-1) {
+				//qDebug() <<sz_itm->getMode();
+				if (sz_itm->getMode()==0) {
 					QPointF coord=sz_itm->GetNearXYOBJECT(mouseX, mouseY);
 					sz_itm->setX1(coord.x());sz_itm->setY1(coord.y()); sz_itm->update(); 
 					} else 
@@ -160,12 +167,13 @@ public:
 				if (sz_itm->getMode()==2) {
 					QPointF coord=sz_itm->GetNearXYOBJECT(mouseX, mouseY);
 					//sz_itm->setX2(coord.x());sz_itm->setY2(coord.y());  
-					}	
-						sz_itm->update();
+					} else
+				if (sz_itm->getMode()==3) {qDebug() <<"pxpxpx";sz_itm->setX3(mouseX);sz_itm->setY3(mouseY);}	
+						if (sz_itm->getMode()<4) sz_itm->update();
 				}
 		
 		if ( m_item ) {
-
+		
 			switch ( m_tool ) {
 				case tool_e::line_solid: [[fallthrough]];
 				case tool_e::line_dashed: {
