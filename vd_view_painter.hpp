@@ -18,12 +18,16 @@ class painter {
 public:
 	painter( QGraphicsView * p_view ) : m_view( p_view ), first(false){ Q_ASSERT( m_view ); }
 	void set_tool( tool_e tool ) {
-		m_tool = tool;
-		if ( m_item ) { // If item is not drawn completely, remove it
-			qDebug() << __FUNCTION__ << "set_tool(): m_item != nullptr";
+		m_tool = tool;		
+		if ( m_item ) { // If item is not drawn completely, remove it	
+			qDebug() << __FUNCTION__ << "1set_tool(): m_item != nullptr";
 			m_view->scene()->removeItem( m_item );
 			m_item = nullptr;
 		}
+		if ( sz_itm ) {
+			m_view->scene()->removeItem( sz_itm );
+			sz_itm = nullptr;
+		}		
 	}
 
 	QPointF GetNearXYOBJECT(qreal x0, qreal y0, qreal x1, qreal y1) {
@@ -95,6 +99,7 @@ public:
 
 				if ( !m_item ) {
 					// First mouse pressing
+					//qDebug() <<"zzz00";
 					m_item = m_view->scene()->addLine( QLineF( pt, pt ), pen );
 					m_item->setFlags( QGraphicsItem::ItemIsMovable | QGraphicsItem::ItemIsSelectable | QGraphicsItem::ItemIsFocusable );
 					m_item->setToolTip( "Test Tooltip" );
@@ -110,7 +115,7 @@ public:
 				m_view->scene()->addItem( new items::text( pt ) );
 				break;
 			case tool_e::size: 
-			
+			//qDebug() <<"sz click";
 					
 				if (sz_itm){
 					switch 	(sz_itm->getMode()) {
@@ -120,16 +125,16 @@ public:
 							sz_itm->setX3(mouseX);sz_itm->setY3(mouseY); 
 						sz_itm->setMode(3); 
 						break;
-						case  3: qDebug() << "click #2"; sz_itm->setX2(mouseX);sz_itm->setY2(mouseY); 				
+						case  3: qDebug() << "click #2"; //sz_itm->setX2(mouseX);sz_itm->setY2(mouseY); 				
 						//sz_itm->setX3(mouseX);sz_itm->setY3(mouseY); 
 						sz_itm->setMode(4); 
-						m_item = nullptr; 
+					m_item = nullptr;
 						break;
 
 						
 
 					}
-						if (sz_itm->getMode()<3) sz_itm->update();
+						if (sz_itm->getMode()<3) {qDebug() <<"update call" ; sz_itm->update(); }
 					
 				}
 				
@@ -138,12 +143,12 @@ public:
 		}
 	}
 
-	void mouse_release_event( QMouseEvent * p_event ) {}
+	void mouse_release_event( QMouseEvent * p_event ) {qDebug() << "realease";}
 
 	void mouse_move_event( QMouseEvent * p_event ) {
 		qreal mouseX = m_view->mapToScene( p_event->pos() ).x();
 		qreal mouseY = m_view->mapToScene( p_event->pos() ).y();
-		
+		qDebug() << mouseX <<","<<mouseY;
 		if (!first) {
 			first=true;
 			lastmouseCoord.setX(mouseX);
@@ -151,25 +156,29 @@ public:
 		}
 		
 		if (m_tool==tool_e::size)
-			if (!sz_itm) {
+			if (!sz_itm || sz_itm->getMode()==4) {
 				sz_itm = new items::size(mouseX,mouseY,m_view);
 				m_view->scene()->addItem(sz_itm);
 			} else {
 				//qDebug() <<sz_itm->getMode();
 				if (sz_itm->getMode()==0) {
+					
 					QPointF coord=sz_itm->GetNearXYOBJECT(mouseX, mouseY);
-					sz_itm->setX1(coord.x());sz_itm->setY1(coord.y()); sz_itm->update(); 
+					sz_itm->setX1(coord.x());sz_itm->setY1(coord.y()); 
 					} else 
 				if (sz_itm->getMode()==1) {
+					
 					QPointF coord=sz_itm->GetNearXYOBJECT(mouseX, mouseY);
-					sz_itm->setX2(coord.x());sz_itm->setY2(coord.y()); sz_itm->update(); 
+					sz_itm->setX2(coord.x());sz_itm->setY2(coord.y()); 
 					} else	
 				if (sz_itm->getMode()==2) {
+					
 					QPointF coord=sz_itm->GetNearXYOBJECT(mouseX, mouseY);
 					//sz_itm->setX2(coord.x());sz_itm->setY2(coord.y());  
 					} else
-				if (sz_itm->getMode()==3) {qDebug() <<"pxpxpx";sz_itm->setX3(mouseX);sz_itm->setY3(mouseY);}	
-						if (sz_itm->getMode()<4) sz_itm->update();
+				if (sz_itm->getMode()==3) {sz_itm->setX3(mouseX);sz_itm->setY3(mouseY);}	
+						if (sz_itm->getMode()<4) {sz_itm->update(); }
+						
 				}
 		
 		if ( m_item ) {

@@ -70,13 +70,14 @@ public:
 	qint8 getMode() {
 		return mode;
 	}
-	void setX2(qreal _x2) {x2=_x2;}
-	void setY2(qreal _y2) {y2=_y2;}
-	void setX1(qreal _x1) {x1=_x1;}
-	void setY1(qreal _y1) {y1=_y1;}
-	void setX3(qreal _x3) {x3=_x3;}
-	void setY3(qreal _y3) {y3=_y3;}
+	void setX2(qreal _x2) {qDebug() << "setx2";x2=_x2;}
+	void setY2(qreal _y2) {qDebug() << "sety2";y2=_y2;}
+	void setX1(qreal _x1) {qDebug() << "setx1";x1=_x1;}
+	void setY1(qreal _y1) {qDebug() << "sety1";y1=_y1;}
+	void setX3(qreal _x3) {qDebug() << "setx3";x3=_x3;}
+	void setY3(qreal _y3) {qDebug() << "sety3";y3=_y3;}
 	
+
 
 
 	
@@ -91,27 +92,24 @@ public:
 
 		for (qsizetype i = 0; i < sz; i++) { 
 			QGraphicsItem* item=itemList.at(i);		
-			qDebug() <<"ll";
+			//qDebug() <<"ll";
 			if (item->type()==6) {	// is item line ?
 			QGraphicsLineItem * tmpLine = static_cast<QGraphicsLineItem *>( item );	
 				QLineF linecoord = tmpLine->line();
 					if (linecoord.x1()==linecoord.x2()) loca = true; else loca = false;
-					qDebug() << "mouse :"<<xnow << " "<<ynow<< " line#"<<i<<linecoord.x1()<<" "<<linecoord.y1() ;
+					//qDebug() << "mouse :"<<xnow << " "<<ynow<< " line#"<<i<<linecoord.x1()<<" "<<linecoord.y1() ;
 					if (loca && minDistance>=abs(xnow-linecoord.x1()) && ((xnow+10>=linecoord.x1() && xnow<=linecoord.x1()) || (xnow-10<=linecoord.x1() && xnow>=linecoord.x1())) ) {
-						qDebug() <<"ll1";
 						minDistance = abs(xnow-linecoord.x1()); 
 						line=linecoord; 
 						locaLine=loca;
 						} 
-					if (!loca && abs(ynow-linecoord.y1()) && ((ynow+10>=linecoord.y1() && ynow<=linecoord.y1()) || (ynow-10<=linecoord.y1() && ynow>=linecoord.y1())) )  {
-						qDebug() <<"ll2";
+					if (!loca && abs(ynow-linecoord.y1()) && ((ynow+10>=linecoord.y1() && ynow<=linecoord.y1()) || (ynow-10<=linecoord.y1() && ynow>=linecoord.y1())) )  {						
 						minDistance = abs(ynow-linecoord.y1()); 
 						line=linecoord; locaLine=loca; }
 				
 			}
 				
 	}
-		qDebug() <<minDistance;
 		QPointF res;
 		
 	if (minDistance==100) res=QPointF(xnow,ynow); else
@@ -119,9 +117,13 @@ public:
 	return res;
 	}
 	
+	
+	QRectF boundingRect() {
+    return QRectF(x1,y1,x3,y3);
+	}
+	
 	void paint(QPainter *painter, const QStyleOptionGraphicsItem *option,
         QWidget *widget) override{
-			qDebug() <<"Repaint";
 			
 		switch  ( mode ) {
 			case  0:
@@ -133,33 +135,51 @@ public:
 			painter->drawEllipse(x1,y1,5,5);
 			painter->drawEllipse(x2,y2,5,5);
 			break;
-			case  3 : 
-			painter->drawEllipse(x1,y1,5,5);
-			painter->drawEllipse(x2,y2,5,5);		
+			case  3 :case  4:
+			//painter->drawEllipse(x1,y1,5,5);
+			//painter->drawEllipse(x2,y2,5,5);		
 			if (y1==y2) {
-				painter->drawLine(x1,y3,x1+10,y3+15);
-				painter->drawLine(x1,y3,x1+10,y3-15);
+				if (abs(x1-x2)<40) {
+					painter->drawLine(x1-15,y3,x2+15,y3);
+				painter->drawLine(x1,y3,x1-8,y3+8);
+				painter->drawLine(x1,y3,x1-8,y3-8);				
+				painter->drawLine(x2,y3,x2+8,y3-8);
+				painter->drawLine(x2,y3,x2+8,y3+8);
+				}
+				else {
+					painter->drawLine(x1,y3,x2,y3);
+				painter->drawLine(x1,y3,x1+8,y3+8);
+				painter->drawLine(x1,y3,x1+8,y3-8);				
+				painter->drawLine(x2,y3,x2-8,y3+8);
+				painter->drawLine(x2,y3,x2-8,y3-8);
+				}
 				
-				painter->drawLine(x2,y3,x2-10,y3+15);
-				painter->drawLine(x2,y3,x2-10,y3-15);
 				if (y3>y2)
 				painter->drawText(QPoint(x1+abs(x2-x1)/2,y3	+15),QString::number(abs(x2-x1)));
 				else 
 				painter->drawText(QPoint(x1+abs(x2-x1)/2,y3	-15),QString::number(abs(x2-x1)));
 				
-				painter->drawLine(x1,y3,x2,y3);
+				
 				
 				painter->drawLine(x1,y2,x1,y3);
 				painter->drawLine(x2,y2,x2,y3);
 				} else
 			if (x1==x2) {
-				painter->drawLine(x3,y1,x3,y2);
+				
+				if (abs(y1-y2)<40) {
+				painter->drawLine(x3,y1-15,x3,y2+15);
+				painter->drawLine(x3,y1,x3-8,y1-8);
+				painter->drawLine(x3,y1,x3+8,y1-8);
+				painter->drawLine(x3,y2,x3-8,y2+8);
+				painter->drawLine(x3,y2,x3+8,y2+8);
+				} else {
+					painter->drawLine(x3,y1,x3,y2);
 				painter->drawLine(x3,y1,x3+15,y1+10);
 				painter->drawLine(x3,y1,x3-15,y1+10);
-				                                
 				painter->drawLine(x3,y2,x3+15,y2-10);
 				painter->drawLine(x3,y2,x3-15,y2-10);
-								
+				}
+				
 				painter->drawLine(x1,y1,x3,y1);
 				painter->drawLine(x2,y2,x3,y2);
 				if (x3>x2)
@@ -167,15 +187,10 @@ public:
 				else 
 					painter->drawText(QPoint(x3-25,y1+abs(y2-y1)/2),QString::number(abs(y2-y1)));
 				} 
-					
+				
 			//painter->drawEllipse(x2,y2,15,15);
 			break;
-			case  80:
-			/*painter->drawEllipse(x1,y1,5,5);
-			painter->drawEllipse(x2,y2,5,5);*/
 			
-					//if (y1==y2) painter->drawLine(x1,y1+10,x2,y2+10);
-			break;
 		}
 		
     }
