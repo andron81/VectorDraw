@@ -3,7 +3,7 @@
 namespace vd::items {
 
 enum types { e_line_solid = QGraphicsItem::UserType + 1, e_line_dashed, e_text, e_size };
-
+enum loc { up = 0, down = 1, right = 2, left = 3, none = 4 };
 struct item_base {
 	virtual int type() const = 0;
 	virtual QJsonObject to_JSON() const = 0;
@@ -186,7 +186,12 @@ public:
 				painter->drawText(QPoint(x3+15,y1+abs(y2-y1)/2),QString::number(abs(y2-y1)));
 				else 
 					painter->drawText(QPoint(x3-25,y1+abs(y2-y1)/2),QString::number(abs(y2-y1)));
-				} 
+				}	else
+			/*if (x1!=x2 && y1!=y2) {	
+				loc location;
+				if x3>
+				
+			}*/
 				
 			//painter->drawEllipse(x2,y2,15,15);
 			break;

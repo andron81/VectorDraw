@@ -5,13 +5,15 @@ const int step = 7;
 namespace vd {
 
 enum class tool_e { none, edit, line_solid, line_dashed, text, size, remove };
-enum loc { up = 0, down = 1, right = 2, left = 3, none = 4 };
+
 
 class painter {
 	QGraphicsView *	m_view;
 	QGraphicsItem *	m_item	= nullptr; // Currently painting item
 	tool_e			m_tool	= tool_e::none;
 	items::size  * sz_itm = nullptr;
+	QGraphicsEllipseItem *	cursor	= nullptr; //Bad to declare here
+	
 	bool			first;
 	QPointF			lastmouseCoord;
 
@@ -29,7 +31,29 @@ public:
 			sz_itm = nullptr;
 		}		
 	}
-
+	QPointF GetNearXYLine(qreal x0, qreal y0) { //Search find a line near
+		QList<QGraphicsItem *> itemList = m_view->items();
+		int sz=itemList.size();	
+		qreal mindistance=2000;
+		qreal xResult = x0,  yResult = y0;
+				for (qsizetype i = 0; i < sz; i++) { 
+					QGraphicsItem* item=itemList.at(i);							
+					if (item->type()==6) { //if item line
+						QGraphicsLineItem * tmpLine = static_cast<QGraphicsLineItem *>( item );
+						QLineF linecoord = tmpLine->line();
+							if (linecoord.x1()==linecoord.x2() ) {//if vert line		
+								if (x0+step>=linecoord.x1() && x0<=linecoord.x1() && mindistance>abs(x0-linecoord.x1())) {mindistance=abs(x0-linecoord.x1()); xResult=linecoord.x1();yResult=y0;}
+								if (x0-step<=linecoord.x1() && x0>=linecoord.x1() && mindistance>abs(x0-linecoord.x1())) {mindistance=abs(x0-linecoord.x1()); xResult=linecoord.x1();yResult=y0;}
+							}
+							if (linecoord.y1()==linecoord.y2() ) {//if hori line										
+								if (y0+step>=linecoord.y1() && y0<=linecoord.y1() && mindistance>abs(y0-linecoord.y1())) {mindistance=abs(y0-linecoord.y1()); yResult=linecoord.y1();xResult=x0;}
+								if (y0-step<=linecoord.y1() && y0>=linecoord.y1() && mindistance>abs(y0-linecoord.y1())) {mindistance=abs(y0-linecoord.y1()); yResult=linecoord.y1();xResult=x0;}
+							}
+					}
+				}
+		return QPointF(xResult,yResult);				
+	}		
+	
 	QPointF GetNearXYOBJECT(qreal x0, qreal y0, qreal x1, qreal y1) {
 
 		bool loca; //location of line (vert or hori)
@@ -42,8 +66,6 @@ public:
 			QGraphicsItem* item=itemList.at(i);							
 			if (item->type()==6) {							
 				QGraphicsLineItem * tmpLine = static_cast<QGraphicsLineItem *>( item );				
-				//qDebug() << "line #"<< i << tmpLine->line().x1()+item->pos().x()<< "x"<<tmpLine->line().y1()+item->pos().y() <<","<< tmpLine->line().x2()+item->pos().x()<< "x"<<tmpLine->line().y2()+item->pos().y();
-		
 				QLineF linecoord = tmpLine->line();
 				linecoord.setP1(linecoord.p1() +item->pos());
 				linecoord.setP2(linecoord.p2() +item->pos());
@@ -88,7 +110,7 @@ public:
 	void mouse_press_event( QMouseEvent * p_event ) {
 		qreal mouseX = m_view->mapToScene( p_event->pos() ).x();
 		qreal mouseY = m_view->mapToScene( p_event->pos() ).y();
-		QPointF	pt	= m_view->mapToScene( p_event->pos() );
+		QPointF	pt	=  GetNearXYLine(mouseX, mouseY); 
 		QPen	pen	= QPen( Qt::SolidLine ); // Default pen
 		switch ( m_tool ) {
 			case tool_e::line_solid: [[fallthrough]];
@@ -98,8 +120,6 @@ public:
 				}                                        	
 
 				if ( !m_item ) {
-					// First mouse pressing
-					//qDebug() <<"zzz00";
 					m_item = m_view->scene()->addLine( QLineF( pt, pt ), pen );
 					m_item->setFlags( QGraphicsItem::ItemIsMovable | QGraphicsItem::ItemIsSelectable | QGraphicsItem::ItemIsFocusable );
 					m_item->setToolTip( "Test Tooltip" );
@@ -154,38 +174,33 @@ public:
 			lastmouseCoord.setX(mouseX);
 			lastmouseCoord.setY(mouseY);
 		}
-		
-		if (m_tool==tool_e::size)
-			if (!sz_itm || sz_itm->getMode()==4) {
+		switch ( m_tool ) {
+			case tool_e::size:
+				if (!sz_itm || sz_itm->getMode()==4) {
 				sz_itm = new items::size(mouseX,mouseY,m_view);
 				m_view->scene()->addItem(sz_itm);
-			} else {
-				//qDebug() <<sz_itm->getMode();
-				if (sz_itm->getMode()==0) {
+				} else {				
+					if (sz_itm->getMode()==0) {
 					
 					QPointF coord=sz_itm->GetNearXYOBJECT(mouseX, mouseY);
 					sz_itm->setX1(coord.x());sz_itm->setY1(coord.y()); 
 					} else 
-				if (sz_itm->getMode()==1) {
+					if (sz_itm->getMode()==1) {
 					
 					QPointF coord=sz_itm->GetNearXYOBJECT(mouseX, mouseY);
 					sz_itm->setX2(coord.x());sz_itm->setY2(coord.y()); 
 					} else	
-				if (sz_itm->getMode()==2) {
+					if (sz_itm->getMode()==2) {
 					
 					QPointF coord=sz_itm->GetNearXYOBJECT(mouseX, mouseY);
 					//sz_itm->setX2(coord.x());sz_itm->setY2(coord.y());  
 					} else
-				if (sz_itm->getMode()==3) {sz_itm->setX3(mouseX);sz_itm->setY3(mouseY);}	
+					if (sz_itm->getMode()==3) {sz_itm->setX3(mouseX);sz_itm->setY3(mouseY);}	
 						if (sz_itm->getMode()<4) {sz_itm->update(); }
 						
-				}
-		
-		if ( m_item ) {
-		
-			switch ( m_tool ) {
-				case tool_e::line_solid: [[fallthrough]];
-				case tool_e::line_dashed: {
+				} break;
+			case tool_e::line_solid: case tool_e::line_dashed:
+					if ( m_item ) {
 					QGraphicsLineItem * p = static_cast<QGraphicsLineItem *>( m_item );
 					QPointF	secondPoint	= m_view->mapToScene( p_event->pos() );
 					qreal xFirstPoint = p->line().x1();
@@ -194,10 +209,24 @@ public:
 					qreal ySecondPoint = secondPoint.y();
 					QPointF Coord = GetNearXYOBJECT(xFirstPoint, yFirstPoint,xSecondPoint,ySecondPoint);
 						secondPoint.setX(Coord.x());secondPoint.setY(Coord.y());					
-							p->setLine( QLineF( p->line().p1(), secondPoint ) );
-				} break;
-			}
+							p->setLine( QLineF( p->line().p1(), secondPoint ) );	
+				} else {
+					QPointF Coord = GetNearXYLine(mouseX, mouseY);
+						if (!cursor)
+							
+							cursor = m_view->scene()->addEllipse(Coord.x(),Coord.y(),5,5);
+						
+						else 
+							
+							cursor->setRect(Coord.x(),Coord.y(),5,5);
+						
+				}	break;	
+					
 		}
+
+
+		
+
 
 		lastmouseCoord.setX(mouseX);  lastmouseCoord.setY(mouseY);
 	}
