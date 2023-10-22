@@ -41,7 +41,7 @@ public:
 		, m_undo_stack( new QUndoStack( this ) )
 	{
 		//statusBar()->showMessage( "Ready" );
-
+		
 		setWindowTitle( "Vector Draw" );
 		if ( !m_settings.load() ) {
 			// Если нет файла настроек...
@@ -97,10 +97,13 @@ public:
 		//undoStack->push(new MoveCommand(movedItem, oldPosition));
 	}
 
+	vd::layout& get_layout(){
+		return m_layout;
+	}
 	void update_title() {
 		setWindowTitle( "Vector Draw - " + m_filename );
 	}
-
+	//void edit_block_visible(bool visi) {m_layout.edit_block_visible(visi);}
 private slots:
 	void act_new() {
 		qDebug() << __FUNCTION__;
@@ -131,4 +134,5 @@ private slots:
 	void act_print() {
 		m_layout.get_view()->print();
 	}
+	
 }; // class MainWindow

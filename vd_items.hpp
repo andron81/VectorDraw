@@ -55,18 +55,28 @@ class size : public item_base, public QGraphicsItem {
 	qreal x3, y3; //#3
 	
 	QGraphicsView *m_view;
+	QPen	pen;
 public:
 	enum { Type = types::e_size };
 
 	int type() const override { return Type; }
 
-	size (qreal _x1, qreal _y1, QGraphicsView * _m_view): x1(_x1), y1(_y1),mode(0) ,m_view(_m_view) {}//qtyofpointSet = 1 immediately
+	size (qreal _x1, qreal _y1, QGraphicsView * _m_view): x1(_x1), y1(_y1),mode(0) ,m_view(_m_view),
+		pen( Qt::SolidLine )
+	{}//qtyofpointSet = 1 immediately
     	QRectF boundingRect() const override{        
 	        return QRectF(200, 200,800,800);
 	}
 	void setMode(qint8 s) {
 		mode = s;
 	}
+	void setBlackColor() {
+		pen.setColor(Qt::black);
+	}		
+		void setGreenColor() {
+		pen.setColor(Qt::green);
+	}		
+
 	qint8 getMode() {
 		return mode;
 	}
@@ -96,7 +106,7 @@ public:
 			if (item->type()==6) {	// is item line ?
 			QGraphicsLineItem * tmpLine = static_cast<QGraphicsLineItem *>( item );	
 				QLineF linecoord = tmpLine->line();
-					if (linecoord.x1()==linecoord.x2()) loca = true; else loca = false;
+					loca = (linecoord.x1()==linecoord.x2());
 					//qDebug() << "mouse :"<<xnow << " "<<ynow<< " line#"<<i<<linecoord.x1()<<" "<<linecoord.y1() ;
 					if (loca && minDistance>=abs(xnow-linecoord.x1()) && ((xnow+10>=linecoord.x1() && xnow<=linecoord.x1()) || (xnow-10<=linecoord.x1() && xnow>=linecoord.x1())) ) {
 						minDistance = abs(xnow-linecoord.x1()); 
@@ -124,7 +134,10 @@ public:
 	
 	void paint(QPainter *painter, const QStyleOptionGraphicsItem *option,
         QWidget *widget) override{
-			
+	
+		//pen.setWidth(1);
+		
+		painter->setPen(pen);
 		switch  ( mode ) {
 			case  0:
 			
@@ -186,7 +199,154 @@ public:
 				painter->drawText(QPoint(x3+15,y1+abs(y2-y1)/2),QString::number(abs(y2-y1)));
 				else 
 					painter->drawText(QPoint(x3-25,y1+abs(y2-y1)/2),QString::number(abs(y2-y1)));
-				}	else
+				}	else {
+					qreal tmp;
+					if (x1>x2) {tmp=x1; x1=x2; x2=tmp;}
+					if (y1>y2) {tmp=y1; y1=y2; y2=tmp;}
+						
+						if (x3>=x1 && x3<=x2 && y3>=y1 && y3<=y2) {
+							
+						 if (abs(x2-x1)>40){	
+						 qDebug()<<"here1";
+							painter->drawLine(x1,y1,x1,y3+15);
+							painter->drawLine(x2,y2,x2,y3-15);
+							painter->drawLine(x1,y3,x2,y3);
+							painter->drawLine(x1,y3,x1+8,y3-8);
+							painter->drawLine(x1,y3,x1+8,y3+8);							
+							painter->drawLine(x2,y3,x2-8,y3-8);
+							painter->drawLine(x2,y3,x2-8,y3+8);
+							painter->drawText(QPoint(x1+abs(x2-x1)/2,y3	+15),QString::number(abs(x2-x1)));
+							}
+							else{	
+							painter->drawLine(x1,y1,x1,y3+15);
+							painter->drawLine(x2,y2,x2,y3-15);
+							painter->drawLine(x1-10,y3,x2+10,y3);
+							painter->drawLine(x1,y3,x1-8,y3+8);
+							painter->drawLine(x1,y3,x1-8,y3-8);							
+							painter->drawLine(x2,y3,x2+8,y3+8);
+							painter->drawLine(x2,y3,x2+8,y3-8);
+							painter->drawText(QPoint(x1+abs(x2-x1)/2,y3	+15),QString::number(abs(x2-x1)));								
+							}
+						}
+						else
+						if (x3>=x1 && x3>=x2 && y3>=y1 && y3<=y2) {
+							if (abs(x2-x1)>40){
+							painter->drawLine(x1,y1,x3,y1);
+							painter->drawLine(x2,y2,x3,y2);
+							painter->drawLine(x3,y1,x3,y2);
+							painter->drawLine(x3,y1,x3-8,y1+8);
+							painter->drawLine(x3,y1,x3+8,y1+8);
+							
+							painter->drawLine(x3,y2,x3-8,y2-8);
+							painter->drawLine(x3,y2,x3+8,y2-8);
+							painter->drawText(QPoint(x3+5,y1+abs(y2-y1)/2),QString::number(abs(y2-y1)));
+							}
+							else {
+							painter->drawLine(x1,y1,x3,y1);
+							painter->drawLine(x2,y2,x3,y2);
+							painter->drawLine(x3,y1-10,x3,y2+10);
+							painter->drawLine(x3,y1,x3-8,y1-8);
+							painter->drawLine(x3,y1,x3+8,y1-8);
+							
+							painter->drawLine(x3,y2,x3-8,y2+8);
+							painter->drawLine(x3,y2,x3+8,y2+8);
+							painter->drawText(QPoint(x3,y1+abs(y2-y1)/2),QString::number(abs(y2-y1)));
+							}
+							
+							}
+					else
+							if (x3<x1 && x3<x2 && y3>=y1 && y3<=y2) {
+							if (abs(x2-x1)>40){
+							painter->drawLine(x1,y1,x3,y1);
+							painter->drawLine(x2,y2,x3,y2);
+							painter->drawLine(x3,y1,x3,y2);
+							painter->drawLine(x3,y1,x3-8,y1+8);
+							painter->drawLine(x3,y1,x3+8,y1+8);
+							
+							painter->drawLine(x3,y2,x3-8,y2-8);
+							painter->drawLine(x3,y2,x3+8,y2-8);
+							painter->drawText(QPoint(x3+5,y1+abs(y2-y1)/2),QString::number(abs(y2-y1)));
+							}
+							else {
+							painter->drawLine(x1,y1,x3,y1);
+							painter->drawLine(x2,y2,x3,y2);
+							painter->drawLine(x3,y1-10,x3,y2+10);
+							painter->drawLine(x3,y1,x3-8,y1-8);
+							painter->drawLine(x3,y1,x3+8,y1-8);
+							
+							painter->drawLine(x3,y2,x3-8,y2+8);
+							painter->drawLine(x3,y2,x3+8,y2+8);
+							painter->drawText(QPoint(x3,y1+abs(y2-y1)/2),QString::number(abs(y2-y1)));
+							}
+							
+							}
+					else
+							if ((y3>y1 && y3>y2) ) {
+							if (abs(x2-x1)>40){
+							painter->drawLine(x1,y1,x1,y3+8);
+							painter->drawLine(x2,y2,x2,y3+8);
+							
+							painter->drawLine(x1,y3,x2,y3);
+							painter->drawLine(x1,y3,x1+8,y3+8);
+							painter->drawLine(x1,y3,x1+8,y3-8);
+							
+							painter->drawLine(x2,y3,x2-8,y3+8);
+							painter->drawLine(x2,y3,x2-8,y3-8);
+					
+							painter->drawText(QPoint(x1+abs(x2-x1)/2,y3+13),QString::number(abs(x2-x1)));
+							}
+							else {
+
+							painter->drawLine(x1,y1,x1,y3+8);
+							painter->drawLine(x2,y2,x2,y3+8);
+							
+							painter->drawLine(x1-10,y3,x2+10,y3);
+							painter->drawLine(x1,y3,x1-8,y3+8);
+							painter->drawLine(x1,y3,x1-8,y3-8);
+							
+							painter->drawLine(x2,y3,x2+8,y3+8);
+							painter->drawLine(x2,y3,x2+8,y3-8);
+					
+							painter->drawText(QPoint(x1+abs(x2-x1)/2,y3+13),QString::number(abs(x2-x1)));
+
+
+							}
+							
+							}
+							else
+							if ((y3<y1 && y3<y2) ) {
+							if (abs(x2-x1)>40){
+							painter->drawLine(x1,y1,x1,y3-8);
+							painter->drawLine(x2,y2,x2,y3-8);
+							
+							painter->drawLine(x1,y3,x2,y3);
+							painter->drawLine(x1,y3,x1+8,y3+8);
+							painter->drawLine(x1,y3,x1+8,y3-8);
+							
+							painter->drawLine(x2,y3,x2-8,y3+8);
+							painter->drawLine(x2,y3,x2-8,y3-8);
+							painter->drawText(QPoint(x1+abs(x2-x1)/2,y3-8),QString::number(abs(x2-x1)));
+							}
+							else {
+							painter->drawLine(x1,y1,x1,y3-8);
+							painter->drawLine(x2,y2,x2,y3-8);
+
+							painter->drawLine(x1-10,y3,x2+10,y3);
+							painter->drawLine(x1,y3,x1-8,y3+8);
+							painter->drawLine(x1,y3,x1-8,y3-8);
+							
+							painter->drawLine(x2,y3,x2+8,y3+8);
+							painter->drawLine(x2,y3,x2+8,y3-8);
+
+							painter->drawText(QPoint(x1+abs(x2-x1)/2,y3-8),QString::number(abs(x2-x1)));
+							}
+							
+							}							
+							
+							
+		
+				
+				}
 			/*if (x1!=x2 && y1!=y2) {	
 				loc location;
 				if x3>

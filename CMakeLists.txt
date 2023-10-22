@@ -41,6 +41,9 @@ qt_standard_project_setup()
 # It is a wrapper around the built-in add_executable() command, and provides additional logic to automatically handle things
 # like linking of Qt plugins in static Qt builds, platform-specific customization of library names, and so on.
 qt_add_executable( ${CMAKE_PROJECT_NAME}
+	vd_view.cpp
+	vd_size_edit.hpp
+	vd_size_edit.cpp
 	vd_settings.hpp
 	vd_menu_bar.hpp
 	vd_view_canvas.hpp
@@ -49,11 +52,14 @@ qt_add_executable( ${CMAKE_PROJECT_NAME}
 	vd_items.hpp
 	vd_layout.hpp
 	vd_util.hpp
-
+	configuration.hpp
+	configuration.cpp
 	VectorDraw.cpp
 	VectorDraw.hpp
 	VectorDraw_pch.hpp
-	VectorDraw.qrc )
+	VectorDraw.qrc 
+	vd_view_painter.cpp
+)
 
 if( CMAKE_CXX_COMPILER_ID STREQUAL "Clang" OR CMAKE_CXX_COMPILER_ID STREQUAL "GNU" )
  if( CMAKE_BUILD_TYPE STREQUAL "Debug" )

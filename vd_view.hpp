@@ -1,16 +1,17 @@
 ﻿#pragma once
+#include "vd_view_canvas.hpp"
 
 namespace vd {
+
 
 class view : public QGraphicsView {
 	const int			m_scale_factor_min		= 1;
 	const int			m_scale_factor_max		= 200;
 	const int			m_scale_factor_div		= 10;
 	int					m_scale_factor			= m_scale_factor_div;
-
+	QWidget * main_win;
 	vd::view_canvas *	m_canvas;
-	painter				m_painter;
-
+	painter	m_painter;
 	QGraphicsItem *		m_focus					= nullptr;	// Focused item
 	QPen				m_focus_line_pen_prev	= Qt::NoPen;
 	QPen				m_focus_line_pen		= QColor( 0, 255, 0 );
@@ -23,54 +24,18 @@ class view : public QGraphicsView {
 	}
 
 public:
-	view( QGraphicsScene * p_scene, QWidget * p_parent )
-		: QGraphicsView( p_scene, p_parent )
-		, m_painter( this )
-	{
-		setRenderHint( QPainter::Antialiasing, true );
-		setViewportUpdateMode( QGraphicsView::FullViewportUpdate );
-		setTransformationAnchor( QGraphicsView::AnchorUnderMouse );
-		setBackgroundBrush( Qt::gray );
-		centerOn( 0, 0 );
-
-		m_canvas = new view_canvas;
-		scene()->addItem( m_canvas );
-
-		connect( scene(), &QGraphicsScene::focusItemChanged, this,
-			[&]( QGraphicsItem * p_new, QGraphicsItem * p_old, Qt::FocusReason reason ) {
-				qDebug() << "new: " << p_new << ", old: " << p_old;
-
-				// Looks ugly, should be improved in future...
-				// Restore unfocused line pen...
-				if ( p_old && p_old->type() == QGraphicsLineItem::Type ) {
-					QGraphicsLineItem * p_line = qgraphicsitem_cast<QGraphicsLineItem *>( p_old );
-					Q_ASSERT( p_line && m_focus_line_pen_prev != Qt::NoPen );
-					p_line->setPen( m_focus_line_pen_prev );
-				}
-
-				// Set focused line pen for contrast...
-				if ( p_new && p_new->type() == QGraphicsLineItem::Type ) {
-					QGraphicsLineItem * p_line = qgraphicsitem_cast<QGraphicsLineItem *>( p_new );
-					Q_ASSERT( p_line );
-					m_focus_line_pen_prev = p_line->pen();
-					p_line->setPen( m_focus_line_pen );
-				}
-
-				m_focus = p_new;
-
-			} );
-
-		update_zoom();
-	}
+	view( QGraphicsScene * p_scene, QWidget * p_parent );
+		
 
 	const view_canvas * get_canvas() const { return m_canvas; }
 	      view_canvas * get_canvas()       { return m_canvas; }
-
+	
+		
 	void set_canvas_size( const QSize & size ) {
 		m_canvas->set_size( size );
 	}
 
-	void set_tool( tool_e tool ) {
+	void set_tool( vd::tool_e tool ) {
 		qDebug() << __FUNCTION__ << ": " << int(tool);
 		m_painter.set_tool( tool );
 	}
@@ -203,9 +168,11 @@ protected:
 		QGraphicsView::mousePressEvent( p_event ); // Forward to base
 
 		// Process painter's mouse button event only if NoDrag
+	
 		if ( dragMode() == QGraphicsView::NoDrag ) {
 			m_painter.mouse_press_event( p_event );
 		}
+		
 	}
 
 	void mouseReleaseEvent( QMouseEvent * p_event ) override {
@@ -214,6 +181,7 @@ protected:
 	}
 
 	void mouseMoveEvent( QMouseEvent * p_event ) override {
+		
 		QGraphicsView::mouseMoveEvent( p_event ); // Forward to base
 		m_painter.mouse_move_event( p_event );
 	}
