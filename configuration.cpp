@@ -8,11 +8,11 @@ Configuration *Configuration::Instance()
     }
 
     return _instance;
-}
+};
 
 
 
-cfg_data_type Configuration::getSavedValue()
+cfg_data_type& Configuration::getSavedValue()
 {
     return _savedValue;
 
@@ -20,7 +20,7 @@ cfg_data_type Configuration::getSavedValue()
 
 void Configuration::setValue(cfg_data_type data) {
 		_savedValue=data;
-}	
+};	
 
 
 Configuration::Configuration(){}

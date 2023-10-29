@@ -12,9 +12,9 @@ class view : public QGraphicsView {
 	QWidget * main_win;
 	vd::view_canvas *	m_canvas;
 	painter	m_painter;
-	QGraphicsItem *		m_focus					= nullptr;	// Focused item
-	QPen				m_focus_line_pen_prev	= Qt::NoPen;
-	QPen				m_focus_line_pen		= QColor( 0, 255, 0 );
+	//QGraphicsItem *		m_focus					= nullptr;	// Focused item
+	//QPen				m_focus_line_pen_prev	= Qt::NoPen;
+
 
 	void update_zoom() {
 		QTransform tform;
@@ -26,7 +26,7 @@ class view : public QGraphicsView {
 public:
 	view( QGraphicsScene * p_scene, QWidget * p_parent );
 		
-
+	painter get_m_painter() {return m_painter;}		
 	const view_canvas * get_canvas() const { return m_canvas; }
 	      view_canvas * get_canvas()       { return m_canvas; }
 	
@@ -101,6 +101,7 @@ public:
 
 protected:
 	// Keyboard events...
+	/*
 	void keyPressEvent( QKeyEvent * p_event ) override {
 
 		// Remove item by "Delete" key...
@@ -142,7 +143,7 @@ protected:
 		} else {
 			QGraphicsView::keyPressEvent( p_event ); // Forward to base
 		}
-	}
+	}*/
 
 	void keyReleaseEvent( QKeyEvent * p_event ) override {
 		// Disable ScrollHandDrag if Ctrl unpressed
@@ -187,4 +188,4 @@ protected:
 	}
 }; // class view
 
-} // namespace vd
+}; // namespace vd

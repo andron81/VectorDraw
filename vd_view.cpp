@@ -24,7 +24,7 @@ vd::view::view( QGraphicsScene * p_scene, QWidget * p_parent )
 		connect( scene(), &QGraphicsScene::focusItemChanged, this,
 			[&]( QGraphicsItem * p_new, QGraphicsItem * p_old, Qt::FocusReason reason ) {
 					
-				
+				if (get_m_painter().get_tool_e()==tool_e::edit) {/*
 				// Looks ugly, should be improved in future...s
 				// Restore unfocused line pen...
 				if (p_new && p_old && p_old->type() == QGraphicsLineItem::Type ) {					
@@ -48,9 +48,10 @@ vd::view::view( QGraphicsScene * p_scene, QWidget * p_parent )
 					p_line->setPen( m_focus_line_pen_prev );	
 				}
 
-				m_focus = p_new;
-
+				m_focus = p_new;*/
+				update_zoom();
+				}
 			} );
 
 		update_zoom();
-	}
+	};

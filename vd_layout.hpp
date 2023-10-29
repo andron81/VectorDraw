@@ -27,7 +27,7 @@ class layout : public QObject {
 	}
 
 public:
-	void edit_block_visible(bool visible, vd::painter::point_and_QGraphicsItem* find_item_){
+	void edit_block_visible(bool visible, vd::painter::point_and_QGraphicsItem* find_item_=nullptr){
 		m_edit_width_item->set_finditem(find_item_);
 		if (find_item_)	{QGraphicsLineItem * findLine = static_cast<QGraphicsLineItem *>(find_item_->item);	
 		if (abs(findLine->line().x1()-findLine->line().x2())>0)
@@ -63,45 +63,100 @@ public:
 
 		//{ // Left side
 			QVBoxLayout * p_layout_ctrl = new QVBoxLayout( p_widget_ctrl );
-
+			QVBoxLayout * p_layout_ctrl_arrow_grp = new QVBoxLayout( p_widget_ctrl );
+			
+			
 			auto add_tool_button = [this]( QLayout * p_layout, QWidget * p_parent, const QString & icon, const QString & name, auto && slot ) {
 				QPushButton * p = new QPushButton( p_parent );
 				p->setFixedHeight( 32 );
 				p->setFlat( true );
-				p->setCheckable( true );
+				p->setCheckable(true);
 				p->setIcon( QIcon( icon ) );
 				p->setToolTip( name );
 
 				// If auto-exclusivity is enabled, checkable buttons that belong to the same parent widget behave as if they were part of the same exclusive button group.
 				// In an exclusive button group, only one button can be checked at any time; checking another button automatically unchecks the previously checked one.
-				p->setAutoExclusive( true );
+				p->setAutoExclusive(true);
 
 				p_layout->addWidget( p );
 				connect( p, &QPushButton::toggled, m_parent, slot );
 				return p;
 			};
 
+			auto add_arrow_button = [this]( QLayout * p_layout, QWidget * p_parent, const QString & icon, const QString & name, auto && slot ) {
+				QPushButton * p = new QPushButton( p_parent );
+				p->setFixedHeight( 32 );				
+				//p->setCheckable(true);
+				p->setFlat( true);
+				p->setIcon( QIcon( icon ) );
+				p->setToolTip( name );
+
+				// If auto-exclusivity is enabled, checkable buttons that belong to the same parent widget behave as if they were part of the same exclusive button group.
+				// In an exclusive button group, only one button can be checked at any time; checking another button automatically unchecks the previously checked one.
+				//p->setAutoExclusive(true);
+
+				p_layout->addWidget( p );
+				connect( p, &QPushButton::clicked, m_parent, slot );
+				return p;
+			};
+
+
+
 			auto add_hbox = [&]( auto * p_parent, auto && hbox ) {
 				QHBoxLayout * l = new QHBoxLayout;
 				hbox( l );
 				p_parent->addLayout( l );
 			};
-
+			
 			add_hbox( p_layout_ctrl, [&]( QHBoxLayout * p ) {
 				add_tool_button( p, p_widget_ctrl, ":/images/tool_edit.svg"       , "Редактирование", [&]( bool toggled ){ if ( toggled ) { m_view->set_tool( vd::tool_e::edit ); } } );
-				add_tool_button( p, p_widget_ctrl, ":/images/tool_size.svg"       , "Размер",         [&]( bool toggled ){ if ( toggled ) { m_view->set_tool( vd::tool_e::size ); } } );
+				add_tool_button( p, p_widget_ctrl, ":/images/tool_size.svg"       , "Размер",         [&]( bool toggled ){ if ( toggled ) { m_edit_width_item->remove_finditem();m_view->set_tool( vd::tool_e::size ); } } );
 			} );
 
 			add_hbox( p_layout_ctrl, [&]( QHBoxLayout * p ) {
-				add_tool_button( p, p_widget_ctrl, ":/images/tool_line_solid.svg" , "Сплошная",       [&]( bool toggled ){ if ( toggled ) { m_view->set_tool( vd::tool_e::line_solid ); } } );
-				add_tool_button( p, p_widget_ctrl, ":/images/tool_line_dashed.svg", "Пунктирная",     [&]( bool toggled ){ if ( toggled ) { m_view->set_tool( vd::tool_e::line_dashed ); } } );
+				add_tool_button( p, p_widget_ctrl, ":/images/tool_line_solid.svg" , "Сплошная",       [&]( bool toggled ){ if ( toggled ) { m_edit_width_item->remove_finditem();m_view->set_tool( vd::tool_e::line_solid ); } } );
+				add_tool_button( p, p_widget_ctrl, ":/images/tool_line_dashed.svg", "Пунктирная",     [&]( bool toggled ){ if ( toggled ) { m_edit_width_item->remove_finditem();m_view->set_tool( vd::tool_e::line_dashed ); } } );
 			} );
 
 			add_hbox( p_layout_ctrl, [&]( QHBoxLayout * p ) {
-				add_tool_button( p, p_widget_ctrl, ":/images/tool_text.svg"       , "Текст",          [&]( bool toggled ){ if ( toggled ) { m_view->set_tool( vd::tool_e::text ); } } );
-				add_tool_button( p, p_widget_ctrl, ":/images/tool_remove.svg"     , "Удалить",        [&]( bool toggled ){ if ( toggled ) { m_view->set_tool( vd::tool_e::remove ); } } );
+				add_tool_button( p, p_widget_ctrl, ":/images/tool_text.svg"       , "Текст",          [&]( bool toggled ){ if ( toggled ) { m_edit_width_item->remove_finditem();m_view->set_tool( vd::tool_e::text ); } } );
+				add_tool_button( p, p_widget_ctrl, ":/images/tool_remove.svg"     , "Удалить",        [&]( bool toggled ){ if ( toggled ) { m_edit_width_item->remove_finditem();m_view->set_tool( vd::tool_e::remove ); } } );
 			} );
 
+
+
+			add_hbox( p_layout_ctrl, [&]( QHBoxLayout * p ) {
+				add_arrow_button( p, p_widget_ctrl, ":/images/right_svgrepo_com.svg"       , "Переместить вправо",    
+				[&]( bool toggled ){ //if ( toggled ) { //m_view->set_tool( vd::tool_e::move_right );
+				auto m_find_item = m_edit_width_item->get_find_item();
+				
+				
+				qDebug()<<m_find_item;
+				if (m_find_item) {
+					auto m_focus = qgraphicsitem_cast<QGraphicsLineItem *>(m_find_item->item);
+					 qDebug()<<"exsist"; 	
+
+				QLineF lineTmp=m_focus->line();
+				lineTmp.setP1(QPointF(lineTmp.p1().x()+10,lineTmp.p1().y()));			
+				lineTmp.setP2(QPointF(lineTmp.p2().x()+10,lineTmp.p2().y()));			
+				m_focus->setLine(lineTmp);
+
+
+					m_edit_width_item->set_finditem(m_find_item);
+					//m_focus->setFocus();	
+				} else {qDebug()<<"empty";}
+				//}
+				} 
+				);
+				add_tool_button( p, p_widget_ctrl, ":/images/left_svgrepo_com.svg"     , "Переместить влево",        [&]( bool toggled ){ if ( toggled ) { qDebug()<<"lft"; m_view->set_tool( vd::tool_e::move_left ); } } );
+			} );
+
+
+
+			add_hbox( p_layout_ctrl, [&]( QHBoxLayout * p ) {
+				add_tool_button( p, p_widget_ctrl, ":/images/up_svgrepo_com.svg"       , "Переместить вверх",          [&]( bool toggled ){ if ( toggled ) { m_view->set_tool( vd::tool_e::move_up ); } } );
+				add_tool_button( p, p_widget_ctrl, ":/images/down_svgrepo_com.svg"     , "Переместить вниз",        [&]( bool toggled ){ if ( toggled ) { m_view->set_tool( vd::tool_e::move_down ); } } );
+			} );
 
 
 			
@@ -134,6 +189,8 @@ public:
 			//m_edit_width_item->setReadOnly(true);
 			p_layout_ctrl->addWidget( m_edit_width_item  );
 			edit_block_visible(false,nullptr);
+
+
 				
 			p_layout_ctrl->addStretch( 0 );
 		//}
@@ -160,4 +217,4 @@ private slots:
 	}
 }; // class layout
 
-} // namespace vd
+}; // namespace vd

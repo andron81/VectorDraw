@@ -1,11 +1,13 @@
 #pragma once
-#define CONFIGURATION_H
 #include "vd_layout.hpp"
 
 namespace cf_ {
 struct cfg_data_type{
 	vd::layout* layout;
-	QPen m_focus_line_pen = QColor( 0, 255, 0 );	
+	qint8 pen_width;
+	QPen m_line_pen;
+	QPen m_focused_line_pen;
+
 };	
 class Configuration
 {
@@ -17,10 +19,10 @@ public:
     static Configuration* Instance();
 	
 	
-    cfg_data_type getSavedValue();
+    cfg_data_type& getSavedValue();
 	void setValue(cfg_data_type data) ;
 private:
     Configuration();
 };
-}
+};
 

@@ -28,4 +28,4 @@ public:
 	}
 }; // class settings
 
-} // namespace vd
+}; // namespace vd

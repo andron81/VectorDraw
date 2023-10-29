@@ -367,4 +367,4 @@ public:
 	}
 };
 
-} // namespace vd::items
+}; // namespace vd::items
