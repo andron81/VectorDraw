@@ -1,0 +1,7 @@
+﻿
+remove - https://www.svgrepo.com/svg/509408/x
+line solid - https://www.svgrepo.com/svg/513838/minus
+line dashed - https://www.svgrepo.com/svg/513839/more-horizontal
+size - https://www.svgrepo.com/svg/501209/full-screen
+text - https://www.svgrepo.com/svg/509191/pencil
+edit - https://www.svgrepo.com/svg/449006/cursor
