@@ -18,7 +18,8 @@ extern cf_::Configuration * cfg;
 	}
 	
 	void vd::size_edit::remove_finditem(){
-		if (find_item && find_item->item) {static_cast<QGraphicsLineItem *>(find_item->item)->setPen(cfg->getSavedValue().m_line_pen);
+		if (find_item && find_item->item) {
+			static_cast<QGraphicsLineItem *>(find_item->item)->setPen(cfg->getSavedValue().m_line_pen);
 				find_item->item=nullptr;			
 				cfg->getSavedValue().layout->edit_block_visible(false);				
 				}
@@ -45,9 +46,7 @@ extern cf_::Configuration * cfg;
 			lineTmp.setP2(QPointF(lineTmp.p1().x(),lineTmp.p1().y()+widthf));
 			findLine->setLine(lineTmp);
 			find_item->firstCoord=lineTmp;
-			find_item->point= QPointF(lineTmp.p1().x(),lineTmp.p1().y() );
-			//findLine->setPen(oldPen);
-			//find_item->item=nullptr;			
+			find_item->point= QPointF(lineTmp.p1().x(),lineTmp.p1().y() );			
 		}
 		//setVisible(false);
 		

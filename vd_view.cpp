@@ -8,6 +8,8 @@ vd::view::view( QGraphicsScene * p_scene, QWidget * p_parent )
 		: QGraphicsView( p_scene, p_parent ),main_win(p_parent)
 		, m_painter( this )
 	{
+
+	//this->setAttribute(Qt::WA_Hover, true);
 	
 		setRenderHint( QPainter::Antialiasing, true );
 		setViewportUpdateMode( QGraphicsView::FullViewportUpdate );
