@@ -32,4 +32,6 @@ public:
 	}
 }; // class menu_bar
 
+
+
 } // namespace vd

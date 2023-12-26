@@ -4,6 +4,59 @@
 
 
 extern cf_::Configuration * cfg;
+
+	void vd::painter::clear_canvas(){
+		
+		 QList<QGraphicsItem *> itemList = m_view->items();
+		 for(auto it = itemList.begin(); it != itemList.end()-1; ++it){			 
+			m_view->scene()->removeItem( *it );
+			delete (*it);
+		 }
+		
+	}
+	
+	void vd::painter::fromJson(QJsonDocument doc){		
+			clear_canvas();
+			QJsonObject obj = doc.object();			
+			QJsonArray items = obj["texts"].toArray();
+			for (auto v : items) {
+				QJsonObject element = v.toObject();
+					switch (element["type"].toInt())	 {
+						case -510: {
+					vd::items::text* itm = new vd::items::text(QPointF(element["pos_x"].toInt(),element["pos_y"].toInt()));
+					itm->setPlainText( element["text"].toString() );
+					m_view->scene()->addItem(itm);					
+						break;
+						}
+						case 6: {
+					vd::items::myline* itm = new vd::items::myline(
+					element["x1"].toInt(),
+					element["y1"].toInt(),
+					element["x2"].toInt(),
+					element["y2"].toInt(), element["style"].toInt()
+					, element["width"].toInt()
+					);
+					m_view->scene()->addItem(itm);
+						break;
+						}
+
+						case -500: {
+					vd::items::size* itm = new vd::items::size(element["x1"].toInt(), element["y1"].toInt(),
+					element["x2"].toInt(), element["y2"].toInt(),
+					element["x3"].toInt(), element["y3"].toInt(),
+					QLine(element["main_line_x1"].toInt(),element["main_line_y1"].toInt(),
+					element["main_line_x2"].toInt(),element["main_line_y2"].toInt()
+					), QPen(),
+					m_view);
+					m_view->scene()->addItem(itm);
+						break;
+					}
+							
+					}
+			}	
+			
+	}	
+
 void vd::painter::edit_tools_on() {	
 						
 	cfg->getSavedValue().layout->edit_block_visible(true,&findItem) ;	
@@ -24,6 +77,11 @@ void vd::painter::testy(){}
 		else 
 		{
 		if ( cursor )  {delete cursor; cursor=nullptr;}
+		if ( sz_itm ) {
+			
+			m_view->scene()->removeItem(sz_itm); delete(sz_itm); sz_itm=nullptr;
+			
+		}
 		cfg->getSavedValue().m_window->set_status_bar_text("");		
 		}
 		if (!first) {
@@ -39,10 +97,10 @@ void vd::painter::testy(){}
 			 else sz_itm->set_first_point_visible(false);
 			}
 				if (!sz_itm || sz_itm->getMode()==4) {
-					  
-						qDebug()<<"new size!!!";
+					  if (mouseX >=canvas_point1.x() && mouseX <=canvas_point2.x() && mouseY >=canvas_point1.y() && mouseY <=canvas_point2.y()) {
 									sz_itm = new items::size(mouseX,mouseY,m_view);
 									m_view->scene()->addItem(sz_itm);
+					  }
 					  
 						
 				  //} 
@@ -76,7 +134,7 @@ void vd::painter::testy(){}
 				} break;
 			case tool_e::line_solid: case tool_e::line_dashed:
 					if ( m_item ) {
-					QGraphicsLineItem * p = static_cast<QGraphicsLineItem *>( m_item );
+					vd::items::myline * p = static_cast<vd::items::myline *>( m_item );
 					QPointF	secondPoint	= m_view->mapToScene( p_event->pos() );
 					qreal xFirstPoint = p->line().x1();
 					qreal yFirstPoint = p->line().y1();
@@ -113,21 +171,159 @@ void vd::painter::testy(){}
 			case tool_e::edit:	{ //drag & drop item
 				if (p_event->buttons().testFlag(Qt::LeftButton) && (findItem.item) ) {
 					drag_and_drop=true;
-					 qDebug()<<"findItem.item is exists";
-					
-					QGraphicsLineItem * findLine = static_cast<QGraphicsLineItem *>(findItem.item);	
-					
-								
-								if (findLine->line().y1()==findLine->line().y2()) {//horiline
+					 
+					if (findItem.item->type()==6){
+						vd::items::myline * findLine = static_cast<vd::items::myline *>(findItem.item);	
+						if (findLine->line().y1()==findLine->line().y2()) {//horiline
 									qreal delta1=abs(findItem.point.x()-findItem.firstCoord.x1());									
 									qreal delta2=abs(findItem.point.x()-findItem.firstCoord.x2());									
 								  findLine->setLine(mouseX-delta1, mouseY, mouseX+delta2, mouseY);									  
-								} else
-								if (findLine->line().x1()==findLine->line().x2()) {//horiline
+						} else
+						if (findLine->line().x1()==findLine->line().x2()) {//horiline
 									qreal delta1=abs(findItem.point.y()-findItem.firstCoord.y1());									
 									qreal delta2=abs(findItem.point.y()-findItem.firstCoord.y2());									
 								  findLine->setLine(mouseX, mouseY-delta1, mouseX, mouseY+delta2);									  
-								} 
+						}
+					} else
+					if (findItem.item->type()==-510){
+						vd::items::text * txt = static_cast<vd::items::text *>(findItem.item);
+						findItem.item->setX(mouseX)	;
+						findItem.item->setY(mouseY)	;
+					}	else			
+					if (findItem.item->type()==-500){
+						
+						vd::items::size * findSize = static_cast<vd::items::size *>(findItem.item);	
+						QLineF main_line = findSize->get_main_line();
+						vd::items::size::triangle_type  coord = findSize->get_coord();
+			
+						if (coord.x1!=coord.x2 && coord.y1!=coord.y2) {
+	 
+														
+								if (main_line.x1()==main_line.x2()){ //vert
+
+									qreal deltaY1=abs(findItem.point.y()-main_line.y1());									
+									qreal deltaY2=abs(findItem.point.y()-main_line.y2());	
+									qreal deltaX1=abs(coord.x1-main_line.x1());	
+									qreal deltaX2=abs(coord.x2-main_line.x1());									
+									if (coord.x3>=coord.x1) {																		
+										findSize->setX3(mouseX)	;
+										findSize->setY1(mouseY-deltaY1)	;
+										findSize->setY2(mouseY+deltaY2)	;
+										findSize->setX1(mouseX-deltaX1)	;
+										findSize->setX2(mouseX-deltaX2)	;
+										findSize->setY3(mouseY+deltaY2)	;
+										findItem.point.setX(mouseX);
+										findItem.point.setY(mouseY);
+								} else
+								{	
+										findSize->setX1(mouseX+deltaX1)	;
+										findSize->setY1(mouseY-deltaY1)	;
+										findSize->setX2(mouseX+deltaX2)	;
+										findSize->setY2(mouseY+deltaY2)	;
+										findSize->setX3(mouseX)	;
+										findSize->setY3(mouseY+deltaY2)	;
+										findItem.point.setX(mouseX);
+										findItem.point.setY(mouseY);	
+								}
+									
+									
+								}										//vert end
+								else
+								if (main_line.y1()==main_line.y2()){ //hori
+
+									qreal deltaX1=abs(findItem.point.x()-main_line.x1());									
+									qreal deltaX2=abs(findItem.point.x()-main_line.x2());	
+									qreal deltaY1=abs(coord.y1-main_line.y1());										
+									qreal deltaY2=abs(coord.y2-main_line.y1());				
+									if (coord.y3>=coord.y1) {										
+									findSize->setY3(mouseY)	;
+									findSize->setX1(mouseX-deltaX1)	;
+									findSize->setX2(mouseX+deltaX2)	;
+									findSize->setY1(mouseY-deltaY1)	;
+									findSize->setY2(mouseY-deltaY2)	;
+									findSize->setX3(mouseX+deltaX2)	;
+									findItem.point.setY(mouseY);
+									findItem.point.setX(mouseX);																		
+								} else
+									{
+										
+									findSize->setY3(mouseY)	;
+									findSize->setX1(mouseX-deltaX1)	;
+									findSize->setX2(mouseX+deltaX2)	;
+									findSize->setY1(mouseY+deltaY1)	;
+									findSize->setY2(mouseY+deltaY2)	;
+									findSize->setX3(mouseX+deltaX2)	;
+									findItem.point.setY(mouseY);
+									findItem.point.setX(mouseX);
+										
+									}
+								}								
+						
+
+
+						
+						} else
+
+						if (main_line.x1()==main_line.x2())  {//vertsize
+							qreal deltaY1=abs(findItem.point.y()-main_line.y1());									
+							qreal deltaY2=abs(findItem.point.y()-main_line.y2());	
+							qreal deltaX1=abs(coord.x1-main_line.x1());		
+							if (coord.x3>=coord.x1) {														
+								findSize->setX3(mouseX)	;
+								findSize->setY1(mouseY-deltaY1)	;
+								findSize->setY2(mouseY+deltaY2)	;
+								findSize->setX1(mouseX-deltaX1)	;
+								findSize->setX2(mouseX-deltaX1)	;
+								findSize->setY3(mouseY+deltaY2)	;
+								findItem.point.setX(mouseX);
+								findItem.point.setY(mouseY);
+							} else
+							{								
+								findSize->setX1(mouseX+deltaX1)	;
+								findSize->setY1(mouseY-deltaY1)	;
+								findSize->setX2(mouseX+deltaX1)	;
+								findSize->setY2(mouseY+deltaY2)	;
+								findSize->setX3(mouseX)	;
+								findSize->setY3(mouseY+deltaY2)	;
+								findItem.point.setX(mouseX);
+								findItem.point.setY(mouseY);	
+							}
+						
+
+
+						
+						} else
+						if (main_line.y1()==main_line.y2())  {//horisize
+							qreal deltaX1=abs(findItem.point.x()-main_line.x1());									
+							qreal deltaX2=abs(findItem.point.x()-main_line.x2());	
+							qreal deltaY1=abs(coord.y1-main_line.y1());		
+							if (coord.y3>=coord.y1) {														
+								findSize->setY3(mouseY)	;
+								findSize->setX1(mouseX-deltaX1)	;
+								findSize->setX2(mouseX+deltaX2)	;
+								findSize->setY1(mouseY-deltaY1)	;
+								findSize->setY2(mouseY-deltaY1)	;
+								findSize->setX3(mouseX+deltaX2)	;
+								findItem.point.setY(mouseY);
+								findItem.point.setX(mouseX);
+							} else
+							{								
+								findSize->setY1(mouseY+deltaY1)	;
+								findSize->setX1(mouseX-deltaX1)	;
+								findSize->setY2(mouseY+deltaY1)	;
+								findSize->setX2(mouseX+deltaX2)	;
+								findSize->setY3(mouseY)	;
+								findSize->setX3(mouseX+deltaX2)	;
+								findItem.point.setY(mouseY);
+								findItem.point.setX(mouseX);	
+							}
+						
+
+
+						
+						}
+					findSize->update();
+					}
 									
 					
 				}
@@ -147,9 +343,16 @@ void vd::painter::testy(){}
 	void vd::painter::mouse_press_event( QMouseEvent * p_event ) {
 		
 	auto restore_old_style_elements=[](point_and_QGraphicsItem& newfindItem, point_and_QGraphicsItem& findItem){
-				if (newfindItem.item!=findItem.item && findItem.item && findItem.item->type()==6) static_cast<QGraphicsLineItem *>(findItem.item)->setPen(cfg->getSavedValue().m_line_pen);
+				if (newfindItem.item!=findItem.item && findItem.item && findItem.item->type()==6) static_cast<vd::items::myline *>(findItem.item)->setPen(cfg->getSavedValue().m_line_pen);
 					else
-				if (findItem.item && newfindItem.item!=findItem.item && findItem.item->type()==-500 ) static_cast<vd::items::size *>(findItem.item)->setBlackColor();	
+				if (findItem.item && newfindItem.item!=findItem.item && findItem.item->type()==-500 ) static_cast<vd::items::size *>(findItem.item)->setBlackColor();
+					else
+				if (findItem.item && newfindItem.item!=findItem.item && findItem.item->type()==-510 ) 
+				{	
+				static_cast<vd::items::text *>(findItem.item)->setDefaultTextColor(cfg->getSavedValue().default_color) ;
+				
+				}
+						
 	};
 
 		
@@ -170,7 +373,6 @@ void vd::painter::testy(){}
 					m_item = m_view->scene()->addLine( QLineF( pt, pt ), pen );
 					m_item->setFlags(  QGraphicsItem::ItemIsFocusable );
 					m_item->setToolTip( "Test Tooltip" );
-					qDebug()<< "Test Tooltip" ;
 				} else {
 					// Second mouse pressing
 					// Leave the item in scene as it is					
@@ -181,19 +383,17 @@ void vd::painter::testy(){}
 				m_view->scene()->addItem( new items::text( pt ) );
 				break;
 			case tool_e::size: 
-			//qDebug() <<"sz click";
-					
 				if (sz_itm){
 					switch 	(sz_itm->getMode()) {
-						case 0: qDebug() <<"set fisrt point of size"; sz_itm->setX2(mouseX);sz_itm->setY2(mouseY); sz_itm->setMode(1); 
+						case 0:  sz_itm->setX2(mouseX);sz_itm->setY2(mouseY); sz_itm->setMode(1); 
 						break;
-						case  1: qDebug() <<"set second point of size"; 
+						case  1: 
 						
 						sz_itm->setX3(mouseX);sz_itm->setY3(mouseY); 
 						sz_itm->setMode(3); 
 						sz_itm->setGreenColor();
 						break;
-						case  3: qDebug() << "click #200"; 
+						case  3: 
 						sz_itm->setMode(4); 
 						sz_itm->setBlackColor();
 						m_item = nullptr;
@@ -203,26 +403,31 @@ void vd::painter::testy(){}
 						
 
 					}
-						if (sz_itm->getMode()<3) {qDebug() <<"update call" ; sz_itm->update(); }
+						if (sz_itm->getMode()<3) {sz_itm->update(); }
 					
 				}
 				
 				break;
 			case tool_e::edit:	{
-/********************************/			
-			point_and_QGraphicsItem newfindItem = GetNearXYOBJECT(mouseX, mouseY);
+/********************************/	
 			
+			point_and_QGraphicsItem newfindItem = GetNearXYOBJECT(mouseX, mouseY);			
 			if (newfindItem.item) {				
-				qDebug()<<"del findItem.item";
+			  if (newfindItem.item->type()==-510) {	
+				restore_old_style_elements(newfindItem, findItem);
+				static_cast<vd::items::text *>(newfindItem.item)->setDefaultTextColor(cfg->getSavedValue().selected_color) ;				
+				findItem = newfindItem;	
+				edit_tools_on();
+			  } else
 			  if (newfindItem.item->type()==6) {
 
 				restore_old_style_elements(newfindItem, findItem);
 				//save new pen style of current line:
-				if ((static_cast<QGraphicsLineItem *>(newfindItem.item))->pen()!=
+				if ((static_cast<vd::items::myline *>(newfindItem.item))->pen()!=
 				cfg->getSavedValue().m_focused_line_pen)
-				cfg->getSavedValue().m_line_pen =(static_cast<QGraphicsLineItem *>(newfindItem.item))->pen();
+				cfg->getSavedValue().m_line_pen =(static_cast<vd::items::myline *>(newfindItem.item))->pen();
 				//set "focused_line_pen for a newfindItem" 		
-				static_cast<QGraphicsLineItem *>(newfindItem.item)->setPen(cfg->getSavedValue().m_focused_line_pen);
+				static_cast<vd::items::myline *>(newfindItem.item)->setPen(cfg->getSavedValue().m_focused_line_pen);
 				findItem = newfindItem;				
 				edit_tools_on();
 				findItem.item->setFocus();
@@ -239,7 +444,7 @@ void vd::painter::testy(){}
 				
 				} else {				
 				if (findItem.item && findItem.item->type()==6) {
-				static_cast<QGraphicsLineItem *>(findItem.item)->setPen(cfg->getSavedValue().m_line_pen);
+				static_cast<vd::items::myline *>(findItem.item)->setPen(cfg->getSavedValue().m_line_pen);
 				findItem.item=nullptr;
 				cfg->getSavedValue().layout->edit_block_visible(false);
 				} else 						
@@ -247,12 +452,18 @@ void vd::painter::testy(){}
 				static_cast<vd::items::size *>(findItem.item)->setBlackColor();	;
 				findItem.item=nullptr;
 				cfg->getSavedValue().layout->edit_block_visible(false);
-				}						
+				}
+				else 						
+				if (findItem.item && findItem.item->type()==-510) {				
+				static_cast<vd::items::text *>(findItem.item)->setDefaultTextColor(cfg->getSavedValue().default_color); 
+				findItem.item=nullptr;
+				
+				}	
 	
 			}
 
-
-			
+				
+				
 			break;		
 			}		
 

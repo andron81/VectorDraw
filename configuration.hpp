@@ -1,12 +1,19 @@
 #pragma once
 #include "vd_layout.hpp"
+#include "VectorDraw.hpp"
 
 namespace cf_ {
 struct cfg_data_type{
 	vd::layout* layout;
+	MainWindow* m_window;
 	qint8 pen_width;
 	QPen m_line_pen;
-	QPen m_focused_line_pen;
+	QPen m_focused_line_pen;	
+	QPen m_size_pen;
+	QPen m_focused_size_pen;
+	QColor selected_color;
+	QColor default_color;
+	
 
 };	
 class Configuration

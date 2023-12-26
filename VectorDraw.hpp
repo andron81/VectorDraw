@@ -9,6 +9,7 @@
 #include "vd_view_painter.hpp"	// tool_e
 #include "vd_view.hpp"
 #include "vd_layout.hpp"
+#include <QFile>
 
 
 // All classes that contain signals or slots must mention Q_OBJECT at the top of their declaration. They must also derive (directly or indirectly) from QObject.
@@ -16,9 +17,9 @@ class MainWindow : public QMainWindow {
 	Q_OBJECT
 
 	vd::settings	m_settings;
-	vd::menu_bar	m_menu_bar;
+	vd::menu_bar	m_menu_bar;	
 	vd::layout		m_layout;
-
+	QLabel 	*		m_curren_coord_sb ; //current coord in status bar;
 	QUndoStack *	m_undo_stack	= nullptr;
 	QUndoView *		m_undo_view		= nullptr;
 
@@ -33,13 +34,19 @@ protected:
 	}
 
 public:
+	void set_status_bar_text(QString str){m_curren_coord_sb->setText(str);}
 	MainWindow( QWidget * p_parent = nullptr )
 		: QMainWindow( p_parent )
 		, m_settings( this )
 		, m_menu_bar( this )
 		, m_layout( this )
-		, m_undo_stack( new QUndoStack( this ) )
+		, m_undo_stack( new QUndoStack( this ) )		
+		 ,m_curren_coord_sb(new QLabel(""))
 	{
+		
+		statusBar()->addWidget(m_curren_coord_sb);
+			
+	//m_status_bar.setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Maximum);
 		//statusBar()->showMessage( "Ready" );
 		
 		setWindowTitle( "Vector Draw" );
@@ -52,21 +59,19 @@ public:
 			move( screen()->geometry().center() - frameGeometry().center() );
 #endif
 		}
-
+		
 		// Create menu bar...
 		m_menu_bar.add( this, "&Файл"
 			, "&Новый",				&MainWindow::act_new
-			, "&Сохранить",			&MainWindow::act_save
+			, "&Открыть",			&MainWindow::act_open
+			, "&Сохранить",			&MainWindow::act_save			
 			, "&Сохранить как ...",	&MainWindow::act_save_as
+			, "&Экспорт"		,	&MainWindow::act_export
 			, "&Печать",			&MainWindow::act_print
 			, nullptr, []{}	// separator
 			, "Вы&ход",				&MainWindow::close
 		);
 
-		m_menu_bar.add( this, "&Правка"
-			, "&Отменить",	[this]{ qDebug() << "Menu: undo (TODO)"; }
-			, "&Повторить",	[this]{ qDebug() << "Menu: redo (TODO)"; }
-		);
 
 		m_menu_bar.add( this, "&Справка"
 			, "&О программе", [this]{
@@ -77,7 +82,7 @@ public:
 				}
 			, "О &Qt", &QApplication::aboutQt );
 
-
+/*
 		// Test Undo Stack
 #ifndef NDEBUG
 		QDockWidget * p_undo_dock_widget = new QDockWidget;
@@ -93,8 +98,7 @@ public:
 		m_redo_action = m_undo_stack->createRedoAction( this, "&Redo" );
 		m_redo_action->setIcon( QIcon( ":/images/edit_redo.png" ) );
 		m_redo_action->setShortcuts( QKeySequence::Redo );
-
-		//undoStack->push(new MoveCommand(movedItem, oldPosition));
+*/
 	}
 
 	vd::layout& get_layout(){
@@ -106,27 +110,60 @@ public:
 	//void edit_block_visible(bool visi) {m_layout.edit_block_visible(visi);}
 private slots:
 	void act_new() {
-		qDebug() << __FUNCTION__;
 		m_filename.clear();
 		update_title();
+		get_layout().get_view()->get_m_painter().clear_canvas();
 
-		// TOOD:
-		//  * check for scene changes, save if needed
-		//  * clear scene
 	}
+	
+		void clear_scene()  {
+	
+		
 
+
+	}
+	
+	void act_open() {
+		QString filename = QFileDialog::getOpenFileName( nullptr, "Сохранить", ".", "Vector Draw file (*.vct)" );
+		if ( filename.isEmpty() ) return;
+		m_filename = filename;
+		QString val;
+		QFile file;
+      file.setFileName(m_filename);
+      file.open(QIODevice::ReadOnly | QIODevice::Text);
+      val = file.readAll();
+      file.close();
+      	  setWindowTitle( "Vector Draw "+m_filename );
+			  
+	  get_layout().get_view()->get_m_painter().fromJson(QJsonDocument::fromJson(val.toUtf8()));
+	}		
 	void act_save() {
 		if ( m_filename.isEmpty() ) {
-			QString filename = QFileDialog::getSaveFileName( nullptr, "Сохранить", ".", "Vector Draw file (*.vdf)" );
+			QString filename = QFileDialog::getSaveFileName( nullptr, "Сохранить", ".", "Векторный файл (*.vct)" );
 			if ( filename.isEmpty() ) return;
 			m_filename = filename;
-			update_title();
 		}
-		m_layout.get_view()->save_to_vdf( m_filename );
+		QJsonDocument doc = QJsonDocument(get_layout().get_view()->get_m_painter().toJson());
+		   QFile jsonFile(m_filename);
+			jsonFile.open(QFile::WriteOnly);
+			jsonFile.write(doc.toJson());
+setWindowTitle( "Vector Draw "+m_filename );			
 	}
 
 	void act_save_as() {
-		QString filename = QFileDialog::getSaveFileName( nullptr, "Сохранить как...", ".", "Изображения (*.png *.jpg)" );
+		QString filename = QFileDialog::getSaveFileName( nullptr, "Сохранить", ".", "Векторный файл (*.vct)" );
+			if ( filename.isEmpty() ) return;
+			m_filename = filename;
+		
+		QJsonDocument doc = QJsonDocument(get_layout().get_view()->get_m_painter().toJson());
+		   QFile jsonFile(m_filename);
+			jsonFile.open(QFile::WriteOnly);
+			jsonFile.write(doc.toJson());
+			setWindowTitle( "Vector Draw "+m_filename );
+	}
+	
+	void act_export() {
+		QString filename = QFileDialog::getSaveFileName( nullptr, "Сохранить как...", ".", "Изображения (*.jpg)" );
 		if ( filename.isEmpty() ) return;
 		m_layout.get_view()->save_to_image( filename );
 	}

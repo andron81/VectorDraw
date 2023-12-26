@@ -9,13 +9,15 @@ public:
 		setFlag( QGraphicsItem::ItemStacksBehindParent );
 		setPen( Qt::NoPen );
 		setBrush( QColor( 255, 255, 255 ) );
-
+	
 		QGraphicsDropShadowEffect * p_effect = new QGraphicsDropShadowEffect;
 		p_effect->setBlurRadius( 32.f );
 		p_effect->setOffset( 0 );
 		p_effect->setColor( QColor( 64, 64, 64 ) );
 		setGraphicsEffect( p_effect );
+		setFiltersChildEvents(true);	
 	}
+	
 
 	QPointF get_top_left() const {
 		return rect().topLeft();
@@ -24,6 +26,7 @@ public:
 	QSize get_size() const {
 		return rect().size().toSize();
 	}
+	
 
 	void set_size( const QSize & size ) {
 		int w = size.width();

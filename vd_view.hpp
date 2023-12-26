@@ -29,52 +29,21 @@ public:
 	painter get_m_painter() {return m_painter;}		
 	const view_canvas * get_canvas() const { return m_canvas; }
 	      view_canvas * get_canvas()       { return m_canvas; }
-	
+
 		
 	void set_canvas_size( const QSize & size ) {
 		m_canvas->set_size( size );
 	}
 
 	void set_tool( vd::tool_e tool ) {
-		qDebug() << __FUNCTION__ << ": " << int(tool);
 		m_painter.set_tool( tool );
 	}
-
-	void save_to_vdf( const QString & filename ) const {
-
-		QFile file( filename );
-		if ( !file.open( QIODevice::WriteOnly ) ) {
-			qWarning( "Couldn't open save file." );
-			return;
-		}
-
-		QList <QGraphicsItem *> l_items = QGraphicsView::items();
-
-		QJsonObject json;
-		json["items"] = l_items.size() - 1; // -1 to remove canvas
-
-
-		for ( const QGraphicsItem * p : l_items ) {
-			switch ( p->type() ) {
-				//QGraphicsLineItem * p_line = qgraphicsitem_cast<QGraphicsLineItem *>( p_old );
-
-				case items::text::Type: {
-					const items::text * p_text = qgraphicsitem_cast<const items::text *>( p );
-					json["i_text"] = p_text->to_JSON();
-				} break;
-
-				default:
-					qDebug() << __FUNCTION__ << ": unknown item type " << p->type();
-					break;
-			}
-		}
-
-		// JSON
-		file.write( QJsonDocument( json ).toJson() );
-
-		// CBOR
-		//file.write( QCborValue::fromJsonValue( json ).toCbor() );
+	void create_canvas(){
+		
+			m_canvas = new view_canvas;
+			scene()->addItem( m_canvas );
 	}
+
 
 	void save_to_image( const QString & filename ) {
 		QSize  canvas_sz( m_canvas->get_size() );
@@ -100,51 +69,6 @@ public:
 	}
 
 protected:
-	// Keyboard events...
-	/*
-	void keyPressEvent( QKeyEvent * p_event ) override {
-
-		// Remove item by "Delete" key...
-		if ( m_focus && p_event->key() == Qt::Key_Delete ) {
-			scene()->removeItem( m_focus );
-			m_focus = nullptr;
-		}
-
-		// Modify item's properties if Ctrl pressed...
-		if ( p_event->modifiers() & Qt::ControlModifier ) {
-			setDragMode( QGraphicsView::ScrollHandDrag );
-
-			if ( m_focus ) {
-
-				// All items...
-				int modifier_value = p_event->modifiers() & Qt::ShiftModifier ? 10 : 1;
-				switch ( p_event->key() ) {
-
-					// Position...
-					case Qt::Key_Up:	m_focus->moveBy(               0, -modifier_value ); break;
-					case Qt::Key_Left:	m_focus->moveBy( -modifier_value,               0 ); break;
-					case Qt::Key_Right:	m_focus->moveBy(  modifier_value,               0 ); break;
-					case Qt::Key_Down:	m_focus->moveBy(               0,  modifier_value ); break;
-				}
-
-				// Text...
-				if ( m_focus->type() == QGraphicsTextItem::Type ) {
-					items::text * p_text = qgraphicsitem_cast<items::text *>( m_focus );
-					Q_ASSERT( p_text );
-					switch ( p_event->key() ) {
-
-						// Size...
-						case Qt::Key_Minus:	p_text->change_size_by( -modifier_value ); break;
-						case Qt::Key_Plus:	p_text->change_size_by(  modifier_value ); break;
-					}
-				}
-
-			}
-		} else {
-			QGraphicsView::keyPressEvent( p_event ); // Forward to base
-		}
-	}*/
-
 	void keyReleaseEvent( QKeyEvent * p_event ) override {
 		// Disable ScrollHandDrag if Ctrl unpressed
 		if ( ~(p_event->modifiers() & Qt::ControlModifier) ) {
