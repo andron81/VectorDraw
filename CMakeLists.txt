@@ -49,6 +49,7 @@ qt_add_executable( ${CMAKE_PROJECT_NAME}
 	vd_view_canvas.hpp
 	vd_view_painter.hpp
 	vd_view.hpp
+	vd_items.cpp
 	vd_items.hpp
 	vd_layout.hpp
 	vd_util.hpp
@@ -65,7 +66,7 @@ if( CMAKE_CXX_COMPILER_ID STREQUAL "Clang" OR CMAKE_CXX_COMPILER_ID STREQUAL "GN
  if( CMAKE_BUILD_TYPE STREQUAL "Debug" )
 	target_link_options( ${CMAKE_PROJECT_NAME} PRIVATE -mconsole )
  else()
-	target_link_options( ${CMAKE_PROJECT_NAME} PRIVATE -s )
+	target_link_options( ${CMAKE_PROJECT_NAME} PRIVATE -mwindows -s )
  endif()
  set_target_properties ( ${CMAKE_PROJECT_NAME} PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR} )
 
