@@ -45,21 +45,15 @@ public:
 	}
 
 
-	void save_to_image( const QString & filename ) {
-		QSize  canvas_sz( m_canvas->get_size() );
-		QPoint canvas_pt( mapFromScene( m_canvas->get_top_left() ) );
-
-		QImage file( canvas_sz, QImage::Format_RGB32 );
-		QPainter painter( &file );
-		painter.setRenderHints( renderHints() );
-
-		// Renders the source rect, which is in view coordinates, from the scene into target, which is in paint device coordinates, using painter.
-		// This function is useful for capturing the contents of the view onto a paint device, such as a QImage (e.g., to take a screenshot), or for printing to QPrinter.
-		// ...
-		// If target is a null rect, the full dimensions of painter's paint device (e.g., for a QPrinter, the page size) will be used.
-		render( &painter, QRectF() /*target*/, QRect( canvas_pt, canvas_sz ) /*source*/ );
-
-		file.save( filename );
+	void save_to_image( const QString & filename, const QString ext ) {
+		QRectF rect(m_canvas->get_top_left().x(), m_canvas->get_top_left().y(), scene()->width(), scene()->height());
+		QImage image(m_canvas->get_size(), QImage::Format_ARGB32_Premultiplied);
+		QPainter painter(&image);
+		scene()->render(&painter,rect, QRectF(-m_canvas->get_size().width()
+		,-m_canvas->get_size().height(), scene()->width(), scene()->height()));		
+		QByteArray ba = ext.toLocal8Bit();
+		const char *ext_c = ba.data();		
+		image.save(filename,ext_c);		
 	}
 
 	void print() {

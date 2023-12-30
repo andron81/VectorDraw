@@ -163,9 +163,14 @@ setWindowTitle( "Vector Draw "+m_filename );
 	}
 	
 	void act_export() {
-		QString filename = QFileDialog::getSaveFileName( nullptr, "Сохранить как...", ".", "Изображения (*.jpg)" );
-		if ( filename.isEmpty() ) return;
-		m_layout.get_view()->save_to_image( filename );
+		QFileDialog dialog(this);
+		 QStringList filters;
+		 filters << "jpg file (*.jpg)"<< "png file (*.png)"<< "Any files (*)";	
+		 dialog.setAcceptMode (QFileDialog :: AcceptSave); 		 
+		 dialog.setNameFilters(filters);		 
+		 QStringList fileNames;
+		 if (dialog.exec()) fileNames = dialog.selectedFiles(); else return;		 
+		m_layout.get_view()->save_to_image( fileNames.back() , dialog.selectedMimeTypeFilter());
 	}
 
 	void act_print() {

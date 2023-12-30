@@ -23,6 +23,10 @@ public:
 		return rect().topLeft();
 	}
 
+	QPointF get_bottom_right() const {
+		return rect().bottomRight();
+	}
+	
 	QSize get_size() const {
 		return rect().size().toSize();
 	}
