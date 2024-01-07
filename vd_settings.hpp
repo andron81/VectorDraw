@@ -1,8 +1,12 @@
 ﻿#pragma once
 
+
+
+
 namespace vd {
 
-class settings : QSettings {
+class settings :public QSettings {
+	
 	QMainWindow *	m_main_window;
 
 public:
@@ -18,6 +22,12 @@ public:
 			}
 		endGroup();
 		return QFile( fileName() ).exists();
+	}
+	QString load_str_param(QString param){
+		beginGroup( "MainWindow" );
+			QString tmp = value( "path" ).toString();
+		endGroup();
+		return tmp;
 	}
 
 	void save() {

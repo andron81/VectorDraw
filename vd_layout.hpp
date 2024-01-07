@@ -1,8 +1,12 @@
 ﻿#pragma once
-#include "vd_size_edit.hpp"
-#include "vd_view.hpp"
-#include <QVector>
 
+
+
+#include "vd_view.hpp"
+#include "vd_size_edit.hpp"
+#include <QVector>
+#include "cfg_data_type.hpp"
+#include "configuration.hpp"
 
 	
 namespace vd {
@@ -326,15 +330,16 @@ public:
 
 			p_layout_ctrl->addWidget( new QLabel( "Размер (мм.):" ) );
 			{
+				
+				QString hs = cf_::Configuration<cfg_data_type>::Instance().getData().hs;
+				QString h = hs.left(hs.indexOf('='));
+				QString w = hs.right(hs.indexOf('='));
 				QHBoxLayout * layout_ctrl_size = new QHBoxLayout;
-
-				m_edit_width = new QLineEdit( "1000", m_parent );
+				m_edit_width = new QLineEdit( w, m_parent );
 				m_edit_width->setValidator( new QIntValidator( 10/*min*/, 1999/*max*/, m_parent ) );
 				layout_ctrl_size->addWidget( m_edit_width );
-
 				layout_ctrl_size->addWidget( new QLabel( "x", m_parent ) );
-
-				m_edit_height = new QLineEdit( "700", m_parent );
+				m_edit_height = new QLineEdit( h, m_parent );
 				m_edit_height->setValidator( new QIntValidator( 10/*min*/, 1999/*max*/, m_parent ) );
 				layout_ctrl_size->addWidget( m_edit_height );
 							

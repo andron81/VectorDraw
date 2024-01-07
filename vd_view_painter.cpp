@@ -1,9 +1,10 @@
 #include "vd_items.hpp"
 #include "vd_view_painter.hpp"
+#include "cfg_data_type.hpp"
 #include "configuration.hpp"
+#include "VectorDraw.hpp"
 
 
-extern cf_::Configuration * cfg;
 
 	void vd::painter::clear_canvas(){
 		
@@ -59,7 +60,7 @@ extern cf_::Configuration * cfg;
 
 void vd::painter::edit_tools_on() {	
 						
-	cfg->getSavedValue().layout->edit_block_visible(true,&findItem) ;	
+	cf_::Configuration<cfg_data_type>::Instance().getData().layout->edit_block_visible(true,&findItem) ;	
 	};
 void vd::painter::testy(){}
 
@@ -67,13 +68,13 @@ void vd::painter::testy(){}
 		qreal mouseX = m_view->mapToScene( p_event->pos() ).x();
 		qreal mouseY = m_view->mapToScene( p_event->pos() ).y();
 		
-		QPointF canvas_point1 = cfg->getSavedValue().layout->get_view()->get_canvas()->get_top_left() ;
+		QPointF canvas_point1 = cf_::Configuration<cfg_data_type>::Instance().getData().layout->get_view()->get_canvas()->get_top_left() ;
 		
-		QSize canvas_sz = cfg->getSavedValue().layout->get_view()->get_canvas()->get_size() ;
+		QSize canvas_sz = cf_::Configuration<cfg_data_type>::Instance().getData().layout->get_view()->get_canvas()->get_size() ;
 		QPointF canvas_point2 = QPointF(canvas_sz.width(),canvas_sz.height())+canvas_point1;
 		
 		if (mouseX >=canvas_point1.x() && mouseX <=canvas_point2.x() && mouseY >=canvas_point1.y() && mouseY <=canvas_point2.y())
-		cfg->getSavedValue().m_window->set_status_bar_text("("+QString::number(mouseX)+","+QString::number(mouseY)+")");
+		cf_::Configuration<cfg_data_type>::Instance().getData().m_window->set_status_bar_text("("+QString::number(mouseX)+","+QString::number(mouseY)+")");
 		else 
 		{
 		if ( cursor )  {delete cursor; cursor=nullptr;}
@@ -82,7 +83,7 @@ void vd::painter::testy(){}
 			m_view->scene()->removeItem(sz_itm); delete(sz_itm); sz_itm=nullptr;
 			
 		}
-		cfg->getSavedValue().m_window->set_status_bar_text("");		
+		cf_::Configuration<cfg_data_type>::Instance().getData().m_window->set_status_bar_text("");		
 		}
 		if (!first) {
 			first=true;
@@ -343,13 +344,13 @@ void vd::painter::testy(){}
 	void vd::painter::mouse_press_event( QMouseEvent * p_event ) {
 		
 	auto restore_old_style_elements=[](point_and_QGraphicsItem& newfindItem, point_and_QGraphicsItem& findItem){
-				if (newfindItem.item!=findItem.item && findItem.item && findItem.item->type()==6) static_cast<vd::items::myline *>(findItem.item)->setPen(cfg->getSavedValue().m_line_pen);
+				if (newfindItem.item!=findItem.item && findItem.item && findItem.item->type()==6) static_cast<vd::items::myline *>(findItem.item)->setPen(cf_::Configuration<cfg_data_type>::Instance().getData().m_line_pen);
 					else
 				if (findItem.item && newfindItem.item!=findItem.item && findItem.item->type()==-500 ) static_cast<vd::items::size *>(findItem.item)->setBlackColor();
 					else
 				if (findItem.item && newfindItem.item!=findItem.item && findItem.item->type()==-510 ) 
 				{	
-				static_cast<vd::items::text *>(findItem.item)->setDefaultTextColor(cfg->getSavedValue().default_color) ;
+				static_cast<vd::items::text *>(findItem.item)->setDefaultTextColor(cf_::Configuration<cfg_data_type>::Instance().getData().default_color) ;
 				
 				}
 						
@@ -360,7 +361,7 @@ void vd::painter::testy(){}
 		qreal mouseY = m_view->mapToScene( p_event->pos() ).y();
 		QPointF	pt	=  GetNearXYLine(mouseX, mouseY); 
 		QPen	pen	= QPen( Qt::SolidLine ); // Default pen
-		auto penWidth = cfg->getSavedValue().pen_width;
+		auto penWidth = cf_::Configuration<cfg_data_type>::Instance().getData().pen_width;
 		pen.setWidth(penWidth);
 		switch ( m_tool ) {
 			case tool_e::line_solid: [[fallthrough]];
@@ -415,7 +416,7 @@ void vd::painter::testy(){}
 			if (newfindItem.item) {				
 			  if (newfindItem.item->type()==-510) {	
 				restore_old_style_elements(newfindItem, findItem);
-				static_cast<vd::items::text *>(newfindItem.item)->setDefaultTextColor(cfg->getSavedValue().selected_color) ;				
+				static_cast<vd::items::text *>(newfindItem.item)->setDefaultTextColor(cf_::Configuration<cfg_data_type>::Instance().getData().selected_color) ;				
 				findItem = newfindItem;	
 				edit_tools_on();
 			  } else
@@ -424,10 +425,10 @@ void vd::painter::testy(){}
 				restore_old_style_elements(newfindItem, findItem);
 				//save new pen style of current line:
 				if ((static_cast<vd::items::myline *>(newfindItem.item))->pen()!=
-				cfg->getSavedValue().m_focused_line_pen)
-				cfg->getSavedValue().m_line_pen =(static_cast<vd::items::myline *>(newfindItem.item))->pen();
+				cf_::Configuration<cfg_data_type>::Instance().getData().m_focused_line_pen)
+				cf_::Configuration<cfg_data_type>::Instance().getData().m_line_pen =(static_cast<vd::items::myline *>(newfindItem.item))->pen();
 				//set "focused_line_pen for a newfindItem" 		
-				static_cast<vd::items::myline *>(newfindItem.item)->setPen(cfg->getSavedValue().m_focused_line_pen);
+				static_cast<vd::items::myline *>(newfindItem.item)->setPen(cf_::Configuration<cfg_data_type>::Instance().getData().m_focused_line_pen);
 				findItem = newfindItem;				
 				edit_tools_on();
 				findItem.item->setFocus();
@@ -444,18 +445,18 @@ void vd::painter::testy(){}
 				
 				} else {				
 				if (findItem.item && findItem.item->type()==6) {
-				static_cast<vd::items::myline *>(findItem.item)->setPen(cfg->getSavedValue().m_line_pen);
+				static_cast<vd::items::myline *>(findItem.item)->setPen(cf_::Configuration<cfg_data_type>::Instance().getData().m_line_pen);
 				findItem.item=nullptr;
-				cfg->getSavedValue().layout->edit_block_visible(false);
+				cf_::Configuration<cfg_data_type>::Instance().getData().layout->edit_block_visible(false);
 				} else 						
 				if (findItem.item && findItem.item->type()==-500) {
 				static_cast<vd::items::size *>(findItem.item)->setBlackColor();	;
 				findItem.item=nullptr;
-				cfg->getSavedValue().layout->edit_block_visible(false);
+				cf_::Configuration<cfg_data_type>::Instance().getData().layout->edit_block_visible(false);
 				}
 				else 						
 				if (findItem.item && findItem.item->type()==-510) {				
-				static_cast<vd::items::text *>(findItem.item)->setDefaultTextColor(cfg->getSavedValue().default_color); 
+				static_cast<vd::items::text *>(findItem.item)->setDefaultTextColor(cf_::Configuration<cfg_data_type>::Instance().getData().default_color); 
 				findItem.item=nullptr;
 				
 				}	

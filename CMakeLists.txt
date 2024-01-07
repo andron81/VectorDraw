@@ -49,12 +49,10 @@ qt_add_executable( ${CMAKE_PROJECT_NAME}
 	vd_view_canvas.hpp
 	vd_view_painter.hpp
 	vd_view.hpp
-	vd_items.cpp
 	vd_items.hpp
 	vd_layout.hpp
-	vd_util.hpp
+	cfg_data_type.hpp
 	configuration.hpp
-	configuration.cpp
 	VectorDraw.cpp
 	VectorDraw.hpp
 	VectorDraw_pch.hpp

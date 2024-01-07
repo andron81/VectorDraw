@@ -1,5 +1,11 @@
 ﻿#pragma once
+#include "configuration.hpp"
+#include "cfg_data_type.hpp"
+#include "vd_layout.hpp"
 
+
+
+enum class vd::tool_e ;
 
 namespace vd::items {
 
@@ -80,7 +86,14 @@ public:
  		return json;
 	}
 	
-	void mousePressEvent( QGraphicsSceneMouseEvent  * p_event ) ;
+	
+		void mousePressEvent( QGraphicsSceneMouseEvent  * p_event ) {
+		vd::tool_e tool = cf_::Configuration<cfg_data_type>::Instance().getData().layout->get_view()->get_m_painter().get_tool_e();
+		if (tool == vd::tool_e::edit)
+		is_select=true;		
+		}
+	
+	
 }; // class text
 
 

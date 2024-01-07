@@ -1,7 +1,8 @@
 ﻿#pragma once
-#include "vd_items.hpp"
+
 #include <QJsonObject>
 #include <QJsonArray>
+#include "vd_items.hpp"
 
 const int step = 7;
 
@@ -76,10 +77,8 @@ public:
 		QList<QGraphicsItem *> itemList = m_view->items();
 		
 			
-		 for(auto it = itemList.begin(); it != itemList.end()-1; it++){
+		 for(auto it = itemList.begin(); it != itemList.end()-1; it++)
 				if (!getJsonOfItem(*it).isEmpty() ) textsArray.append(getJsonOfItem(*it));
-				
-		 }
 					m_currentJsonObject["texts"]=textsArray;
 		 
 		 
@@ -200,10 +199,7 @@ public:
 			}		
 				
 	}
-
-	if (minDistance==100) return {nullptr}; else {return result;}
-	
-	
+	if (minDistance==100) return {nullptr}; else {return result;}	
 	}
 	
 	QPointF GetNearXYOBJECT(qreal x0, qreal y0, qreal x1, qreal y1) {
@@ -250,8 +246,7 @@ public:
 				if (y1-step <=linecoord.y1() && y1>=linecoord.y1() && loca && (linecoord.y1()==linecoord.y2()) 
 					&& x1>=minX
 					&& x1<=maxX)  
-					{
-					
+					{					
 					yResult = linecoord.y1(); break;}
 					} 
 				} //for

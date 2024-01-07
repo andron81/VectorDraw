@@ -1,6 +1,9 @@
 ﻿#pragma once
 #include "vd_view_canvas.hpp"
 
+
+
+#include "vd_view_painter.hpp"
 namespace vd {
 
 

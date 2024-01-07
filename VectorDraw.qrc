@@ -6,5 +6,9 @@
 	<file>images/tool_remove.svg</file>
 	<file>images/tool_line_solid.svg</file>
 	<file>images/tool_line_dashed.svg</file>
+	<file>images/left_svgrepo_com.svg</file>
+	<file>images/right_svgrepo_com.svg</file>
+	<file>images/up_svgrepo_com.svg</file>
+	<file>images/down_svgrepo_com.svg</file>
 </qresource>
 </RCC>
