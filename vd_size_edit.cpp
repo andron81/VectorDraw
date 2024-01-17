@@ -1,12 +1,8 @@
-#include "cfg_data_type.hpp"
 #include "configuration.hpp"
 #include "vd_size_edit.hpp"
-#include "VectorDraw.hpp"
 
 
-#include "vd_layout.hpp"
-
-
+extern cf_::Configuration * cfg;
 
     void vd::size_edit::focusInEvent(QFocusEvent* e){
 		//nothing yet here
@@ -19,23 +15,23 @@
 		
 		if (find_item && find_item->item) {
 			if (find_item->item->type()==6) {
-			static_cast<vd::items::myline *>(find_item->item)->setPen(cf_::Configuration<cfg_data_type>::Instance().getData().m_line_pen);
+			static_cast<vd::items::myline *>(find_item->item)->setPen(cfg->getSavedValue().m_line_pen);
 				find_item->item=nullptr;			
-				cf_::Configuration<cfg_data_type>::Instance().getData().layout->edit_block_visible(false);				
+				cfg->getSavedValue().layout->edit_block_visible(false);				
 			}
 			else 
 			
 			if (find_item->item->type()==-500) {
 			static_cast<vd::items::size *>(find_item->item)->setBlackColor();
 				find_item->item=nullptr;			
-				cf_::Configuration<cfg_data_type>::Instance().getData().layout->edit_block_visible(false);				
+				cfg->getSavedValue().layout->edit_block_visible(false);				
 			}
 			else 
 			
 			if (find_item->item->type()==-510) {
 			
 				find_item->item=nullptr;			
-				cf_::Configuration<cfg_data_type>::Instance().getData().layout->edit_block_visible(false);				
+				cfg->getSavedValue().layout->edit_block_visible(false);				
 			}
 		
 		}

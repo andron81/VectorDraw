@@ -1,8 +1,7 @@
 ﻿#pragma once
-
+#include "vd_items.hpp"
 #include <QJsonObject>
 #include <QJsonArray>
-#include "vd_items.hpp"
 
 const int step = 7;
 
@@ -133,12 +132,10 @@ public:
 	point_and_QGraphicsItem  GetNearXYOBJECT(qreal xnow, qreal ynow) {
 				QList<QGraphicsItem *> itemList = m_view->items();
 				int sz=itemList.size();	
-				bool loca; //location of line (vert or hori)
-				
+				bool loca; //location of line (vert or hori)				
 				QLineF line;
 				bool locaLine;
-				qint8 minDistance=100;
-			
+				qint8 minDistance=100;			
 			point_and_QGraphicsItem result{nullptr}; 
 			QLineF linecoord;
 			

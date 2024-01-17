@@ -6,8 +6,6 @@
 
 
 
-
-
 namespace vd {
 
 class size_edit  : public QLineEdit{

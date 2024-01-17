@@ -23,11 +23,17 @@ public:
 		endGroup();
 		return QFile( fileName() ).exists();
 	}
-	QString load_str_param(QString param){
+	/*QString load_str_param(QString param){
 		beginGroup( "MainWindow" );
-			QString tmp = value( "path" ).toString();
+			QString tmp = value( param ).toString();
 		endGroup();
 		return tmp;
+	}*/
+	QString operator[](QString param) {		
+		beginGroup( "MainWindow" );
+			QString tmp = value( param ).toString();
+		endGroup();
+		return tmp;		
 	}
 
 	void save() {

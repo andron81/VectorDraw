@@ -1,9 +1,8 @@
-
 #include "VectorDraw.hpp"
 #include "configuration.hpp"
-#include "cfg_data_type.hpp"
-#include "vd_view.hpp"
 
+
+extern cf_::Configuration * cfg;
 
 vd::view::view( QGraphicsScene * p_scene, QWidget * p_parent )
 		: QGraphicsView( p_scene, p_parent ),main_win(p_parent)
@@ -20,7 +19,10 @@ vd::view::view( QGraphicsScene * p_scene, QWidget * p_parent )
 
 		m_canvas = new view_canvas;
 		scene()->addItem( m_canvas );
-
+		
+/*	connect( scene(), &QGraphicsScene::focusItemChanged, cfg->getSavedValue()->get_m_edit_width_item(),
+		&vd::my_QLineEdit::test);*/
+		
 		connect( scene(), &QGraphicsScene::focusItemChanged, this,
 			[&]( QGraphicsItem * p_new, QGraphicsItem * p_old, Qt::FocusReason reason ) {
 					

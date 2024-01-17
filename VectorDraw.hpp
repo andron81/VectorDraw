@@ -1,6 +1,7 @@
 #pragma once
 
 #include "VectorDraw_pch.hpp"
+#include "vd_util.hpp"
 #include "vd_settings.hpp"
 #include "vd_menu_bar.hpp"
 #include "vd_items.hpp"
@@ -8,9 +9,7 @@
 #include "vd_view_painter.hpp"	// tool_e
 #include "vd_view.hpp"
 #include "vd_layout.hpp"
-#include "cfg_data_type.hpp"
 #include <QFile>
-
 
 
 
@@ -29,43 +28,56 @@ class MainWindow : public QMainWindow {
 	QAction *		m_undo_action	= nullptr;
 	QAction *		m_redo_action	= nullptr;
 
-	QString			m_filename;
-	qint8 			m_mode;
-	QString 		m_work_path="";
+	
+	qint8 			m_mode; //0 - normal program start mode , 1 - start program from 1c
+	QString 		m_work_path="";     //if mode==1 work path for output files  
+	QString			m_filename ="";     //if mode==1 filename of output file
+void parse_comandline_and_settings(int argc=0, char * argv[] = nullptr){
+	//parse comand line:
+	QMap<QString,QString> params;
+	for (qint8 i=1; i<argc ; i+=2) 
+		params[QString(argv[i])]=QString(argv[i+1]);					
+	m_mode = ((params.find(QString("-f"))!=params.end())?qint8(1):qint8(0))	;		
+	QString hs; 
+	if ( !m_settings.load() ) {
+	// if the ini file isn't exist
+			resize( 1280, 720 );
+			hs="100x100";	
+#if QT_VERSION >= QT_VERSION_CHECK( 5, 14, 0 )
+			move( screen()->geometry().center() - frameGeometry().center() );
+#endif
+	} else { 
+			m_work_path = m_settings["path"];
+			hs = m_settings["hs"] ;
+	}			
+				
+	if (m_mode==1) { 
+		hs = ((params.find(QString("-hs"))!=params.end())?QString(params["-hs"]):hs);
+		m_layout.set_size(QSize((hs.left(hs.indexOf('x'))).toInt(),(hs.right(hs.size() - hs.indexOf('x')-1)).toInt()));
+		m_filename = params["-f"];
+	}
+
+}	
 protected:
 	void closeEvent( QCloseEvent * /*p_event*/ ) override {
 		m_settings.save();
 	}
 
 public:
-	void set_work_path(QString pth) {if (m_mode==1) m_work_path = QDir::currentPath()+"/"+pth;}
+	void set_m_work_path(QString pth) {if (m_mode==1) m_work_path = QDir::currentPath()+"/"+pth;}
+	void set_m_filename(QString fln) {m_filename = fln;}
 	void set_status_bar_text(QString str){m_curren_coord_sb->setText(str);}
-	MainWindow( QWidget * p_parent = nullptr, qint8 mode_ = 0, QString m_filename_= "" )
+	MainWindow( QWidget * p_parent = nullptr, int argc=0, char * argv[] = nullptr )
 		: QMainWindow( p_parent )
 		, m_settings( this )
 		, m_menu_bar( this )
-		, m_layout( this )
+		, m_layout( this)
 		, m_undo_stack( new QUndoStack( this ) )		
-		,m_curren_coord_sb(new QLabel(""))
-		,m_filename(m_filename_)
-		,m_mode(mode_)		 
-	{
+		,m_curren_coord_sb(new QLabel("")){
 		
 		statusBar()->addWidget(m_curren_coord_sb);
-			
-	//m_status_bar.setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Maximum);
-		//statusBar()->showMessage( "Ready" );
-		
-		setWindowTitle( "Vector Draw" );
-		if ( !m_settings.load() ) {
-			// Если нет файла настроек...
-			resize( 1280, 720 );
-
-
-#if QT_VERSION >= QT_VERSION_CHECK( 5, 14, 0 )
-			move( screen()->geometry().center() - frameGeometry().center() );
-#endif
-		} else {set_work_path(m_settings.load_str_param("path"));}
+		setWindowTitle( "Vector Draw" );		
+		parse_comandline_and_settings(argc,argv );
 		if (m_mode==0)
 		m_menu_bar.add( this, "&Файл"
 			, "&Новый",				&MainWindow::act_new
@@ -97,20 +109,17 @@ public:
 						"<p><a href='https://github.com/andron81/VectorDraw'>Vector Draw на GitHub</a></p>" );
 				}
 			);
-
-
 	}
 
 	vd::layout& get_layout(){
 		return m_layout;
 	}
 	void update_title() {
-		setWindowTitle( "Vector Draw - " +m_work_path+"/"+ m_filename );
+		setWindowTitle( "Vector Draw - " + m_filename );
 	}
 
 
-	void open_file(QString filename="") {
-		qDebug()<<m_work_path;
+	void open_file(QString filename="") {	
 		if (filename=="") {
 		filename = QFileDialog::getOpenFileName( nullptr, "Открыть", m_work_path, "Vector Draw file (*.vct)" );
 		if ( filename.isEmpty() ) return;
