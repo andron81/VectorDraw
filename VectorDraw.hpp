@@ -6,7 +6,7 @@
 #include "vd_menu_bar.hpp"
 #include "vd_items.hpp"
 #include "vd_view_canvas.hpp"
-#include "vd_view_painter.hpp"	// tool_e
+#include "vd_view_painter.hpp"	
 #include "vd_view.hpp"
 #include "vd_layout.hpp"
 #include <QFile>

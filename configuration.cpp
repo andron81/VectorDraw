@@ -12,8 +12,7 @@ Configuration *Configuration::Instance()
 
 
 
-cfg_data_type& Configuration::getSavedValue()
-{
+cfg_data_type& Configuration::getSavedValue(){
     return _savedValue;
 
 };

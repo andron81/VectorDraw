@@ -1,13 +1,12 @@
 #include "configuration.hpp"
 #include "vd_items.hpp"
 #include "vd_view_painter.hpp"
-
+#include <QPen>
 
 
 extern cf_::Configuration * cfg;
 
-	void vd::painter::clear_canvas(){
-		
+	void vd::painter::clear_canvas(){		
 		 QList<QGraphicsItem *> itemList = m_view->items();
 		 for(auto it = itemList.begin(); it != itemList.end()-1; ++it){			 
 			m_view->scene()->removeItem( *it );
@@ -24,31 +23,39 @@ extern cf_::Configuration * cfg;
 				QJsonObject element = v.toObject();
 					switch (element["type"].toInt())	 {
 						case -510: {
-					vd::items::text* itm = new vd::items::text(QPointF(element["pos_x"].toInt(),element["pos_y"].toInt()));
+					vd::items::text* itm = new vd::items::text(this, QPointF(element["pos_x"].toInt(),element["pos_y"].toInt()));
 					itm->setPlainText( element["text"].toString() );
 					m_view->scene()->addItem(itm);					
 						break;
 						}
 						case 6: {
 					vd::items::myline* itm = new vd::items::myline(
+					this,
 					element["x1"].toInt(),
 					element["y1"].toInt(),
 					element["x2"].toInt(),
-					element["y2"].toInt(), element["style"].toInt()
-					, element["width"].toInt()
+					element["y2"].toInt(), 
+					element["style"].toInt(), 
+					element["width"].toInt()
 					);
 					m_view->scene()->addItem(itm);
 						break;
 						}
 
 						case -500: {
-					vd::items::size* itm = new vd::items::size(element["x1"].toInt(), element["y1"].toInt(),
-					element["x2"].toInt(), element["y2"].toInt(),
-					element["x3"].toInt(), element["y3"].toInt(),
-					QLine(element["main_line_x1"].toInt(),element["main_line_y1"].toInt(),
-					element["main_line_x2"].toInt(),element["main_line_y2"].toInt()
-					), QPen(),
-					m_view);
+					vd::items::size* itm = new vd::items::size(
+					this, 
+					element["x1"].toInt(), 
+					element["y1"].toInt(),
+					element["x2"].toInt(), 
+					element["y2"].toInt(),
+					element["x3"].toInt(), 
+					element["y3"].toInt(),
+					QLine(element["main_line_x1"].toInt(),
+						  element["main_line_y1"].toInt(),
+						  element["main_line_x2"].toInt(),
+						  element["main_line_y2"].toInt()), 
+					QPen());
 					m_view->scene()->addItem(itm);
 						break;
 					}
@@ -99,7 +106,7 @@ void vd::painter::testy(){}
 			}
 				if (!sz_itm || sz_itm->getMode()==4) {
 					  if (mouseX >=canvas_point1.x() && mouseX <=canvas_point2.x() && mouseY >=canvas_point1.y() && mouseY <=canvas_point2.y()) {
-									sz_itm = new items::size(mouseX,mouseY,m_view);
+									sz_itm = new items::size(this,mouseX,mouseY);
 									m_view->scene()->addItem(sz_itm);
 					  }
 					  
@@ -324,9 +331,7 @@ void vd::painter::testy(){}
 						
 						}
 					findSize->update();
-					}
-									
-					
+					}												
 				}
 
 			}				
@@ -381,7 +386,7 @@ void vd::painter::testy(){}
 				}
 				break;
 			case tool_e::text:
-				m_view->scene()->addItem( new items::text( pt ) );
+				m_view->scene()->addItem( new items::text( this,pt ) );
 				break;
 			case tool_e::size: 
 				if (sz_itm){

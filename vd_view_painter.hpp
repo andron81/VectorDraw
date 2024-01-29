@@ -7,8 +7,9 @@ const int step = 7;
 
 
 namespace vd {
-
 enum class tool_e { none, edit, line_solid, line_dashed, text, size, remove,move_left,move_right,move_up,move_down };
+
+
 
 class view;
 
@@ -37,6 +38,7 @@ private:
 	QJsonObject m_currentJsonObject;
 
 public:
+	QGraphicsView * get_m_view() {return m_view;}
 	QJsonObject getJsonOfItem(QGraphicsItem* item){
 		 QJsonObject result;
 		 
