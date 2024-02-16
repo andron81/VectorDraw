@@ -143,14 +143,14 @@ public:
 			
 		for (qsizetype i = 0; i < sz; i++) { 
 			QGraphicsItem* item=itemList.at(i);		
-			if (item->type()==-510) {	// is item a txt ?
+			if (item->type()==-510) {	// is item a txt ?			
 				vd::items::text* tmpText = static_cast<vd::items::text*>( item );	
-				if (tmpText->get_is_select()) {
+				if (tmpText->get_is_select()) {					
 					result.item = item;
-					tmpText->set_is_select(false);
+					//tmpText->set_is_select(false);
 					return result; 
 				}
-				//nothing
+				
 			} else
 			if (item->type()==6) {	// is item a line ?
 			 vd::items::myline* tmpLine = static_cast<vd::items::myline *>( item );	
